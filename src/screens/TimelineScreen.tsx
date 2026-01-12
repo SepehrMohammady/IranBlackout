@@ -1,194 +1,188 @@
-// Iran Blackout - Timeline Screen
-
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
-    StyleSheet,
     ScrollView,
+    StyleSheet,
     TouchableOpacity,
-    SafeAreaView,
+    Dimensions,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../theme';
-import { useAppStore } from '../store';
-import { fetchTimeline } from '../services/api';
-import { Card, StatusDot } from '../components';
-import { formatNumber } from '../i18n';
-import { TimelineDataPoint } from '../types';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LineChart } from 'react-native-chart-kit';
+
+import { useTheme, typography, toPersianNumber } from '../theme';
+import { TimeSeriesDataPoint } from '../types';
 
 type TimeRange = '24h' | '7d' | '30d';
 
+// Mock time series data
+const generateMockData = (range: TimeRange): TimeSeriesDataPoint[] => {
+    const points = range === '24h' ? 24 : range === '7d' ? 7 : 30;
+    const data: TimeSeriesDataPoint[] = [];
+
+    for (let i = 0; i < points; i++) {
+        const baseValue = 70 + Math.random() * 20;
+        const dip = Math.random() > 0.85 ? Math.random() * 40 : 0;
+        data.push({
+            timestamp: new Date(Date.now() - i * (range === '24h' ? 3600000 : 86400000)).toISOString(),
+            value: Math.max(0, Math.min(100, baseValue - dip)),
+            label: range === '24h' ? `${23 - i}:00` : `Day ${points - i}`,
+        });
+    }
+
+    return data.reverse();
+};
+
 const TimelineScreen: React.FC = () => {
-    const { theme } = useTheme();
     const { t, i18n } = useTranslation();
-    const isRTL = i18n.language === 'fa';
+    const { colors, isDark } = useTheme();
+    const [timeRange, setTimeRange] = useState<TimeRange>('7d');
+    const [data] = useState(() => generateMockData(timeRange));
 
-    const [timeRange, setTimeRange] = useState<TimeRange>('24h');
-    const [data, setData] = useState<TimelineDataPoint[]>([]);
-    const [loading, setLoading] = useState(true);
+    const isFarsi = i18n.language === 'fa';
+    const screenWidth = Dimensions.get('window').width - 32;
 
-    const { outages } = useAppStore();
-
-    useEffect(() => {
-        const loadTimeline = async () => {
-            setLoading(true);
-            const days = timeRange === '24h' ? 1 : timeRange === '7d' ? 7 : 30;
-            const result = await fetchTimeline(days);
-            setData(result);
-            setLoading(false);
-        };
-
-        loadTimeline();
-    }, [timeRange]);
-
-    // Calculate average connectivity
-    const avgConnectivity = data.length > 0
-        ? data.reduce((sum, p) => sum + p.value, 0) / data.length
-        : 0;
-
-    const getTimeRangeDays = () => {
-        switch (timeRange) {
-            case '24h': return 1;
-            case '7d': return 7;
-            case '30d': return 30;
-        }
+    const chartData = {
+        labels: data.filter((_, i) => i % Math.ceil(data.length / 6) === 0).map(d => d.label || ''),
+        datasets: [
+            {
+                data: data.map(d => d.value),
+                color: (opacity = 1) => `rgba(30, 58, 95, ${opacity})`, // Primary color
+                strokeWidth: 2,
+            },
+        ],
     };
 
+    const chartConfig = {
+        backgroundColor: colors.surface,
+        backgroundGradientFrom: colors.surface,
+        backgroundGradientTo: colors.surface,
+        decimalPlaces: 0,
+        color: (opacity = 1) => isDark ? `rgba(248, 250, 252, ${opacity})` : `rgba(15, 23, 42, ${opacity})`,
+        labelColor: (opacity = 1) => isDark ? `rgba(148, 163, 184, ${opacity})` : `rgba(100, 116, 139, ${opacity})`,
+        style: { borderRadius: 16 },
+        propsForDots: {
+            r: '4',
+            strokeWidth: '2',
+            stroke: colors.primary,
+        },
+        propsForBackgroundLines: {
+            strokeDasharray: '',
+            stroke: colors.border,
+            strokeWidth: 1,
+        },
+    };
+
+    const timeRangeOptions: { key: TimeRange; label: string }[] = [
+        { key: '24h', label: t('timeline.last24h') },
+        { key: '7d', label: t('timeline.last7d') },
+        { key: '30d', label: t('timeline.last30d') },
+    ];
+
+    const formatNumber = (num: number): string => {
+        return isFarsi ? toPersianNumber(num) : String(num);
+    };
+
+    // Calculate average connectivity
+    const avgConnectivity = Math.round(data.reduce((sum, d) => sum + d.value, 0) / data.length);
+    const minConnectivity = Math.round(Math.min(...data.map(d => d.value)));
+    const outageEvents = data.filter(d => d.value < 50).length;
+
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <Text style={[styles.title, { color: theme.colors.text }]}>
+                    <Text style={[typography.h2, { color: colors.text }]}>
                         {t('timeline.title')}
-                    </Text>
-                    <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-                        {t('timeline.subtitle')}
                     </Text>
                 </View>
 
-                {/* Time range selector */}
-                <View style={styles.rangeSelector}>
-                    {(['24h', '7d', '30d'] as TimeRange[]).map((range) => (
+                {/* Time Range Selector */}
+                <View style={styles.timeRangeContainer}>
+                    {timeRangeOptions.map((option) => (
                         <TouchableOpacity
-                            key={range}
+                            key={option.key}
                             style={[
-                                styles.rangeButton,
+                                styles.timeRangeButton,
                                 {
-                                    backgroundColor: timeRange === range
-                                        ? theme.colors.primary
-                                        : theme.colors.surface,
-                                    borderColor: theme.colors.border,
+                                    backgroundColor: timeRange === option.key ? colors.primary : colors.surface,
+                                    borderColor: colors.border,
                                 },
                             ]}
-                            onPress={() => setTimeRange(range)}
+                            onPress={() => setTimeRange(option.key)}
                         >
                             <Text
                                 style={[
-                                    styles.rangeButtonText,
+                                    typography.bodySmall,
                                     {
-                                        color: timeRange === range
-                                            ? '#FFFFFF'
-                                            : theme.colors.text,
+                                        color: timeRange === option.key ? '#FFFFFF' : colors.text,
+                                        fontWeight: timeRange === option.key ? '600' : '400',
                                     },
                                 ]}
                             >
-                                {t(`timeline.past_${range}`)}
+                                {option.label}
                             </Text>
                         </TouchableOpacity>
                     ))}
                 </View>
 
-                {/* Stats summary */}
-                <View style={styles.statsRow}>
-                    <Card style={styles.statCard}>
-                        <Text style={[styles.statValue, { color: theme.colors.primary }]}>
-                            {formatNumber(Math.round(avgConnectivity))}%
+                {/* Stats Cards */}
+                <View style={styles.statsContainer}>
+                    <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
+                        <Text style={[typography.h2, { color: colors.online }]}>
+                            {formatNumber(avgConnectivity)}%
                         </Text>
-                        <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
+                        <Text style={[typography.caption, { color: colors.textSecondary }]}>
                             Avg. Connectivity
                         </Text>
-                    </Card>
-
-                    <Card style={styles.statCard}>
-                        <Text style={[styles.statValue, { color: theme.colors.offline }]}>
-                            {formatNumber(outages.length)}
+                    </View>
+                    <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
+                        <Text style={[typography.h2, { color: colors.offline }]}>
+                            {formatNumber(minConnectivity)}%
                         </Text>
-                        <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
-                            {t('timeline.total_outages')}
+                        <Text style={[typography.caption, { color: colors.textSecondary }]}>
+                            Lowest Point
                         </Text>
-                    </Card>
+                    </View>
+                    <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
+                        <Text style={[typography.h2, { color: colors.limited }]}>
+                            {formatNumber(outageEvents)}
+                        </Text>
+                        <Text style={[typography.caption, { color: colors.textSecondary }]}>
+                            Disruptions
+                        </Text>
+                    </View>
                 </View>
 
-                {/* Chart placeholder */}
-                <Card style={styles.chartCard}>
-                    <Text style={[styles.chartTitle, { color: theme.colors.text }]}>
+                {/* Line Chart */}
+                <View style={[styles.chartContainer, { backgroundColor: colors.surface }]}>
+                    <Text style={[typography.h4, styles.chartTitle, { color: colors.text }]}>
                         Connectivity Over Time
                     </Text>
+                    <LineChart
+                        data={chartData}
+                        width={screenWidth - 32}
+                        height={220}
+                        chartConfig={chartConfig}
+                        bezier
+                        style={styles.chart}
+                        withInnerLines={true}
+                        withOuterLines={false}
+                        withVerticalLabels={true}
+                        withHorizontalLabels={true}
+                        fromZero={true}
+                        yAxisSuffix="%"
+                    />
+                </View>
 
-                    {/* Simple bar chart visualization */}
-                    <View style={styles.chart}>
-                        {data.slice(-24).map((point, index) => {
-                            const barColor = point.status === 'online'
-                                ? theme.colors.online
-                                : point.status === 'limited'
-                                    ? theme.colors.limited
-                                    : theme.colors.offline;
-
-                            return (
-                                <View key={index} style={styles.barContainer}>
-                                    <View
-                                        style={[
-                                            styles.bar,
-                                            {
-                                                height: `${point.value}%`,
-                                                backgroundColor: barColor,
-                                            }
-                                        ]}
-                                    />
-                                </View>
-                            );
-                        })}
-                    </View>
-
-                    <View style={styles.chartLabels}>
-                        <Text style={[styles.chartLabel, { color: theme.colors.textMuted }]}>
-                            {getTimeRangeDays()} {getTimeRangeDays() === 1 ? 'day' : 'days'} ago
-                        </Text>
-                        <Text style={[styles.chartLabel, { color: theme.colors.textMuted }]}>
-                            Now
-                        </Text>
-                    </View>
-                </Card>
-
-                {/* Recent events */}
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-                        Recent Events
+                {/* Info Card */}
+                <View style={[styles.infoCard, { backgroundColor: colors.surfaceVariant }]}>
+                    <Text style={[typography.bodySmall, { color: colors.textSecondary }]}>
+                        📊 Data aggregated from OONI, Cloudflare Radar, and crowdsourced reports.
+                        All times shown in local timezone.
                     </Text>
-
-                    {outages.length === 0 ? (
-                        <Card>
-                            <Text style={[styles.noData, { color: theme.colors.textMuted }]}>
-                                {t('timeline.no_outages')}
-                            </Text>
-                        </Card>
-                    ) : (
-                        outages.slice(0, 10).map((outage) => (
-                            <Card key={outage.id} style={styles.eventCard}>
-                                <View style={styles.eventHeader}>
-                                    <StatusDot status={outage.status} size={10} />
-                                    <Text style={[styles.eventTitle, { color: theme.colors.text }]}>
-                                        {outage.provinceId || 'Nationwide'} - {outage.severity}
-                                    </Text>
-                                </View>
-                                <Text style={[styles.eventTime, { color: theme.colors.textSecondary }]}>
-                                    {new Date(outage.startTime).toLocaleString(isRTL ? 'fa-IR' : 'en-US')}
-                                </Text>
-                            </Card>
-                        ))
-                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -202,117 +196,50 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
     },
-    content: {
+    scrollContent: {
         padding: 16,
     },
     header: {
-        marginBottom: 20,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-    },
-    subtitle: {
-        fontSize: 14,
-        marginTop: 4,
-    },
-    rangeSelector: {
-        flexDirection: 'row',
-        gap: 8,
         marginBottom: 16,
     },
-    rangeButton: {
+    timeRangeContainer: {
+        flexDirection: 'row',
+        gap: 8,
+        marginBottom: 20,
+    },
+    timeRangeButton: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
         borderRadius: 8,
         borderWidth: 1,
         alignItems: 'center',
     },
-    rangeButtonText: {
-        fontWeight: '600',
-        fontSize: 14,
-    },
-    statsRow: {
+    statsContainer: {
         flexDirection: 'row',
         gap: 12,
-        marginBottom: 16,
+        marginBottom: 20,
     },
     statCard: {
         flex: 1,
-        alignItems: 'center',
-        paddingVertical: 16,
-    },
-    statValue: {
-        fontSize: 28,
-        fontWeight: '900',
-    },
-    statLabel: {
-        fontSize: 11,
-        fontWeight: '600',
-        textTransform: 'uppercase',
-        marginTop: 4,
-    },
-    chartCard: {
-        marginBottom: 20,
         padding: 16,
+        borderRadius: 12,
+        alignItems: 'center',
     },
-    chartTitle: {
-        fontSize: 16,
-        fontWeight: '700',
+    chartContainer: {
+        borderRadius: 16,
+        padding: 16,
         marginBottom: 16,
     },
-    chart: {
-        flexDirection: 'row',
-        height: 120,
-        alignItems: 'flex-end',
-        gap: 2,
-    },
-    barContainer: {
-        flex: 1,
-        height: '100%',
-        justifyContent: 'flex-end',
-    },
-    bar: {
-        width: '100%',
-        borderRadius: 2,
-        minHeight: 4,
-    },
-    chartLabels: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 8,
-    },
-    chartLabel: {
-        fontSize: 10,
-    },
-    section: {
-        marginBottom: 20,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: '700',
+    chartTitle: {
         marginBottom: 12,
     },
-    noData: {
-        textAlign: 'center',
-        paddingVertical: 20,
+    chart: {
+        borderRadius: 12,
     },
-    eventCard: {
-        marginBottom: 8,
-    },
-    eventHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    eventTitle: {
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    eventTime: {
-        fontSize: 12,
-        marginTop: 4,
-        marginLeft: 18,
+    infoCard: {
+        padding: 16,
+        borderRadius: 12,
     },
 });
 

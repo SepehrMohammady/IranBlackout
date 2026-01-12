@@ -1,5 +1,3 @@
-// Iran Blackout - Components Index
-
-export { Card, StatCard } from './common/Card';
-export { StatusBadge, StatusDot } from './common/StatusBadge';
-export { ISPCard, ISPList } from './common/ISPCard';
+export { default as IranMap } from './IranMap';
+export { default as ISPStatusCard } from './ISPStatusCard';
+export { default as StatusIndicator } from './StatusIndicator';

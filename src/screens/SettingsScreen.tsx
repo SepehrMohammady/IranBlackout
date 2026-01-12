@@ -1,196 +1,201 @@
-// Iran Blackout - Settings Screen
-
 import React, { useState } from 'react';
 import {
     View,
     Text,
-    StyleSheet,
     ScrollView,
-    Switch,
+    StyleSheet,
     TouchableOpacity,
-    SafeAreaView,
-    Alert,
+    Switch,
+    Linking,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../theme';
-import { useAppStore } from '../store';
-import { Card } from '../components';
-import { changeLanguage, getCurrentLanguage } from '../i18n';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useTheme, typography, ThemeMode } from '../theme';
+import { setLanguage } from '../i18n';
+
+const APP_VERSION = '1.0.0';
 
 const SettingsScreen: React.FC = () => {
-    const { theme, toggleTheme, colorScheme } = useTheme();
     const { t, i18n } = useTranslation();
-    const isRTL = i18n.language === 'fa';
+    const { colors, mode, setMode, isDark } = useTheme();
+    const [telemetryEnabled, setTelemetryEnabled] = useState(true);
 
-    const { settings, updateSettings } = useAppStore();
-    const [needsRestart, setNeedsRestart] = useState(false);
+    const currentLanguage = i18n.language;
 
-    const handleLanguageChange = async () => {
-        const newLang = getCurrentLanguage() === 'en' ? 'fa' : 'en';
-        const restart = await changeLanguage(newLang);
-        if (restart) {
-            setNeedsRestart(true);
-            Alert.alert(
-                'Restart Required',
-                'Please restart the app for RTL changes to take effect.',
-                [{ text: 'OK' }]
-            );
-        }
-        updateSettings({ language: newLang });
+    const handleLanguageChange = async (lang: string) => {
+        await setLanguage(lang);
     };
 
-    const SettingRow: React.FC<{
-        label: string;
-        value?: boolean;
-        onToggle?: () => void;
-        onPress?: () => void;
-        rightText?: string;
-        icon?: string;
-    }> = ({ label, value, onToggle, onPress, rightText, icon }) => (
-        <TouchableOpacity
-            style={[styles.settingRow, isRTL && styles.settingRowRTL]}
-            onPress={onPress}
-            disabled={!onPress && !onToggle}
-            activeOpacity={onPress ? 0.7 : 1}
-        >
-            <View style={[styles.settingLeft, isRTL && styles.settingLeftRTL]}>
-                {icon && <Text style={styles.settingIcon}>{icon}</Text>}
-                <Text style={[styles.settingLabel, { color: theme.colors.text }]}>
-                    {label}
-                </Text>
-            </View>
+    const handleThemeChange = (newMode: ThemeMode) => {
+        setMode(newMode);
+    };
 
-            {onToggle && value !== undefined && (
-                <Switch
-                    value={value}
-                    onValueChange={onToggle}
-                    trackColor={{
-                        false: theme.colors.border,
-                        true: theme.colors.primary + '50'
-                    }}
-                    thumbColor={value ? theme.colors.primary : theme.colors.textMuted}
-                />
-            )}
+    const openGitHub = () => {
+        Linking.openURL('https://github.com/SepehrMohammady/IranBlackout');
+    };
 
-            {rightText && (
-                <View style={[styles.rightTextContainer, isRTL && styles.rightTextContainerRTL]}>
-                    <Text style={[styles.rightText, { color: theme.colors.textSecondary }]}>
-                        {rightText}
-                    </Text>
-                    <Text style={[styles.chevron, { color: theme.colors.textMuted }]}>
-                        {isRTL ? '‹' : '›'}
-                    </Text>
-                </View>
-            )}
-        </TouchableOpacity>
-    );
+    const themeOptions: { key: ThemeMode; label: string }[] = [
+        { key: 'light', label: t('settings.themeLight') },
+        { key: 'dark', label: t('settings.themeDark') },
+        { key: 'system', label: t('settings.themeSystem') },
+    ];
 
-    const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
-        <Text style={[
-            styles.sectionHeader,
-            { color: theme.colors.textSecondary },
-            isRTL && styles.textRTL
-        ]}>
-            {title}
-        </Text>
-    );
+    const languageOptions = [
+        { key: 'en', label: 'English', native: 'English' },
+        { key: 'fa', label: 'Farsi', native: 'فارسی' },
+    ];
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <Text style={[styles.title, { color: theme.colors.text }]}>
+                    <Text style={[typography.h2, { color: colors.text }]}>
                         {t('settings.title')}
                     </Text>
                 </View>
 
-                {/* Appearance */}
-                <SectionHeader title={t('settings.appearance')} />
-                <Card noPadding>
-                    <SettingRow
-                        icon="🌙"
-                        label={t('settings.dark_mode')}
-                        value={colorScheme === 'dark'}
-                        onToggle={toggleTheme}
-                    />
-                    <View style={[styles.divider, { backgroundColor: theme.colors.divider }]} />
-                    <SettingRow
-                        icon="🌐"
-                        label={t('settings.language')}
-                        rightText={getCurrentLanguage() === 'fa' ? 'فارسی' : 'English'}
-                        onPress={handleLanguageChange}
-                    />
-                </Card>
+                {/* Appearance Section */}
+                <View style={styles.section}>
+                    <Text style={[typography.label, styles.sectionTitle, { color: colors.textSecondary }]}>
+                        {t('settings.appearance')}
+                    </Text>
 
-                {/* Notifications */}
-                <SectionHeader title={t('settings.notifications')} />
-                <Card noPadding>
-                    <SettingRow
-                        icon="🔔"
-                        label={t('settings.push_notifications')}
-                        value={settings.pushNotifications}
-                        onToggle={() => updateSettings({
-                            pushNotifications: !settings.pushNotifications
-                        })}
-                    />
-                    <View style={[styles.divider, { backgroundColor: theme.colors.divider }]} />
-                    <SettingRow
-                        icon="🚨"
-                        label={t('alerts.outage_detected')}
-                        value={settings.alertOutages}
-                        onToggle={() => updateSettings({
-                            alertOutages: !settings.alertOutages
-                        })}
-                    />
-                    <View style={[styles.divider, { backgroundColor: theme.colors.divider }]} />
-                    <SettingRow
-                        icon="✅"
-                        label={t('alerts.connectivity_restored')}
-                        value={settings.alertRestorations}
-                        onToggle={() => updateSettings({
-                            alertRestorations: !settings.alertRestorations
-                        })}
-                    />
-                </Card>
+                    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+                        <Text style={[typography.body, { color: colors.text }]}>
+                            {t('settings.theme')}
+                        </Text>
+                        <View style={styles.optionsRow}>
+                            {themeOptions.map((option) => (
+                                <TouchableOpacity
+                                    key={option.key}
+                                    style={[
+                                        styles.optionButton,
+                                        {
+                                            backgroundColor: mode === option.key ? colors.primary : colors.surfaceVariant,
+                                            borderColor: colors.border,
+                                        },
+                                    ]}
+                                    onPress={() => handleThemeChange(option.key)}
+                                >
+                                    <Text
+                                        style={[
+                                            typography.bodySmall,
+                                            { color: mode === option.key ? '#FFFFFF' : colors.text },
+                                        ]}
+                                    >
+                                        {option.label}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
 
-                {/* Privacy */}
-                <SectionHeader title={t('settings.privacy')} />
-                <Card noPadding>
-                    <SettingRow
-                        icon="🔒"
-                        label={t('settings.anonymous_reporting')}
-                        value={settings.anonymousReporting}
-                        onToggle={() => updateSettings({
-                            anonymousReporting: !settings.anonymousReporting
-                        })}
-                    />
-                </Card>
+                    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+                        <Text style={[typography.body, { color: colors.text }]}>
+                            {t('settings.language')}
+                        </Text>
+                        <View style={styles.optionsRow}>
+                            {languageOptions.map((option) => (
+                                <TouchableOpacity
+                                    key={option.key}
+                                    style={[
+                                        styles.optionButton,
+                                        {
+                                            backgroundColor: currentLanguage === option.key ? colors.primary : colors.surfaceVariant,
+                                            borderColor: colors.border,
+                                        },
+                                    ]}
+                                    onPress={() => handleLanguageChange(option.key)}
+                                >
+                                    <Text
+                                        style={[
+                                            typography.bodySmall,
+                                            { color: currentLanguage === option.key ? '#FFFFFF' : colors.text },
+                                        ]}
+                                    >
+                                        {option.native}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                </View>
 
-                {/* About */}
-                <SectionHeader title={t('settings.about')} />
-                <Card noPadding>
-                    <SettingRow
-                        icon="ℹ️"
-                        label={t('settings.version')}
-                        rightText="0.0.1"
-                    />
-                    <View style={[styles.divider, { backgroundColor: theme.colors.divider }]} />
-                    <SettingRow
-                        icon="📖"
-                        label={t('settings.source_code')}
-                        rightText="GitHub"
-                        onPress={() => { }}
-                    />
-                </Card>
+                {/* Privacy Section */}
+                <View style={styles.section}>
+                    <Text style={[typography.label, styles.sectionTitle, { color: colors.textSecondary }]}>
+                        {t('settings.privacy')}
+                    </Text>
+
+                    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+                        <View style={styles.switchRow}>
+                            <View style={styles.switchLabel}>
+                                <Text style={[typography.body, { color: colors.text }]}>
+                                    {t('settings.telemetry')}
+                                </Text>
+                                <Text style={[typography.caption, { color: colors.textSecondary, marginTop: 4 }]}>
+                                    {t('settings.telemetryDesc')}
+                                </Text>
+                            </View>
+                            <Switch
+                                value={telemetryEnabled}
+                                onValueChange={setTelemetryEnabled}
+                                trackColor={{ false: colors.border, true: colors.primary }}
+                                thumbColor={telemetryEnabled ? colors.accent : colors.textSecondary}
+                            />
+                        </View>
+                    </View>
+
+                    <View style={[styles.infoCard, { backgroundColor: colors.surfaceVariant }]}>
+                        <Text style={[typography.bodySmall, { color: colors.textSecondary }]}>
+                            🔒 Your privacy is our priority. We never collect GPS coordinates, personal identifiers,
+                            or any data that could identify you. Only anonymous, city-level connectivity data is shared
+                            to help document internet disruptions.
+                        </Text>
+                    </View>
+                </View>
+
+                {/* About Section */}
+                <View style={styles.section}>
+                    <Text style={[typography.label, styles.sectionTitle, { color: colors.textSecondary }]}>
+                        {t('settings.about')}
+                    </Text>
+
+                    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+                        <View style={styles.aboutRow}>
+                            <Text style={[typography.body, { color: colors.text }]}>
+                                {t('common.appName')}
+                            </Text>
+                            <Text style={[typography.body, { color: colors.textSecondary }]}>
+                                {t('settings.version')} {APP_VERSION}
+                            </Text>
+                        </View>
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.card, { backgroundColor: colors.surface }]}
+                        onPress={openGitHub}
+                    >
+                        <View style={styles.aboutRow}>
+                            <Text style={[typography.body, { color: colors.text }]}>
+                                {t('settings.openSource')}
+                            </Text>
+                            <Text style={[typography.body, { color: colors.primary }]}>
+                                GitHub →
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
 
                 {/* Footer */}
                 <View style={styles.footer}>
-                    <Text style={[styles.footerTagline, { color: theme.colors.primary }]}>
-                        ✊ {isRTL ? 'زن، زندگی، آزادی' : 'Woman, Life, Freedom'}
+                    <Text style={[typography.caption, { color: colors.textSecondary, textAlign: 'center' }]}>
+                        {t('messages.accessMatters')}
                     </Text>
-                    <Text style={[styles.footerText, { color: theme.colors.textMuted }]}>
-                        {t('about.privacy_statement')}
+                    <Text style={[typography.caption, { color: colors.textSecondary, textAlign: 'center', marginTop: 8 }]}>
+                        Made with ❤️ for Iran
                     </Text>
                 </View>
             </ScrollView>
@@ -205,85 +210,57 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
     },
-    content: {
+    scrollContent: {
         padding: 16,
-        paddingBottom: 32,
     },
     header: {
         marginBottom: 24,
     },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
+    section: {
+        marginBottom: 24,
     },
-    sectionHeader: {
-        fontSize: 12,
-        fontWeight: '600',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-        marginTop: 24,
+    sectionTitle: {
+        marginBottom: 12,
+        marginLeft: 4,
+    },
+    card: {
+        padding: 16,
+        borderRadius: 12,
         marginBottom: 8,
-        paddingHorizontal: 4,
     },
-    textRTL: {
-        textAlign: 'right',
-    },
-    settingRow: {
+    optionsRow: {
         flexDirection: 'row',
+        gap: 8,
+        marginTop: 12,
+    },
+    optionButton: {
+        flex: 1,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        borderWidth: 1,
         alignItems: 'center',
+    },
+    switchRow: {
+        flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-    },
-    settingRowRTL: {
-        flexDirection: 'row-reverse',
-    },
-    settingLeft: {
-        flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
     },
-    settingLeftRTL: {
-        flexDirection: 'row-reverse',
+    switchLabel: {
+        flex: 1,
+        marginRight: 16,
     },
-    settingIcon: {
-        fontSize: 20,
+    infoCard: {
+        padding: 16,
+        borderRadius: 12,
     },
-    settingLabel: {
-        fontSize: 16,
-    },
-    rightTextContainer: {
+    aboutRow: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 4,
-    },
-    rightTextContainerRTL: {
-        flexDirection: 'row-reverse',
-    },
-    rightText: {
-        fontSize: 14,
-    },
-    chevron: {
-        fontSize: 20,
-    },
-    divider: {
-        height: 1,
-        marginLeft: 48,
     },
     footer: {
-        marginTop: 32,
-        alignItems: 'center',
-        paddingHorizontal: 16,
-    },
-    footerTagline: {
-        fontSize: 18,
-        fontWeight: '700',
-        marginBottom: 12,
-    },
-    footerText: {
-        fontSize: 12,
-        textAlign: 'center',
-        lineHeight: 18,
+        paddingVertical: 32,
     },
 });
 

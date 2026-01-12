@@ -1,110 +1,77 @@
-// Iran Blackout - Typography
-// Bold, minimal, trustworthy
+import { StyleSheet } from 'react-native';
 
-import { Platform } from 'react-native';
+export const typography = StyleSheet.create({
+    // Headers
+    h1: {
+        fontSize: 32,
+        fontWeight: '700',
+        lineHeight: 40,
+        letterSpacing: -0.5,
+    },
+    h2: {
+        fontSize: 24,
+        fontWeight: '600',
+        lineHeight: 32,
+        letterSpacing: -0.25,
+    },
+    h3: {
+        fontSize: 20,
+        fontWeight: '600',
+        lineHeight: 28,
+    },
+    h4: {
+        fontSize: 18,
+        fontWeight: '500',
+        lineHeight: 24,
+    },
 
-// System fonts with Persian/Arabic support
-const fontFamily = Platform.select({
-    android: 'Roboto',
-    ios: 'System',
-    default: 'System',
+    // Body text
+    body: {
+        fontSize: 16,
+        fontWeight: '400',
+        lineHeight: 24,
+    },
+    bodySmall: {
+        fontSize: 14,
+        fontWeight: '400',
+        lineHeight: 20,
+    },
+
+    // Captions and labels
+    caption: {
+        fontSize: 12,
+        fontWeight: '400',
+        lineHeight: 16,
+    },
+    label: {
+        fontSize: 12,
+        fontWeight: '500',
+        lineHeight: 16,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
+    },
+
+    // Special
+    button: {
+        fontSize: 16,
+        fontWeight: '600',
+        lineHeight: 24,
+        letterSpacing: 0.25,
+    },
+    tabLabel: {
+        fontSize: 12,
+        fontWeight: '500',
+        lineHeight: 16,
+    },
 });
 
-const fontFamilyPersian = Platform.select({
-    android: 'IRANSans', // Common Persian font for Android
-    ios: 'System',
-    default: 'System',
-});
+// Farsi number conversion
+const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
 
-export const typography = {
-    // Font families
-    fontFamily,
-    fontFamilyPersian,
-
-    // Font sizes
-    sizes: {
-        xs: 10,
-        sm: 12,
-        md: 14,
-        lg: 16,
-        xl: 18,
-        xxl: 22,
-        xxxl: 28,
-        display: 34,
-        hero: 48,
-    },
-
-    // Font weights
-    weights: {
-        light: '300' as const,
-        regular: '400' as const,
-        medium: '500' as const,
-        semibold: '600' as const,
-        bold: '700' as const,
-        black: '900' as const,
-    },
-
-    // Line heights
-    lineHeights: {
-        tight: 1.1,
-        normal: 1.4,
-        relaxed: 1.6,
-        loose: 1.8,
-    },
-
-    // Predefined text styles
-    styles: {
-        hero: {
-            fontSize: 48,
-            fontWeight: '900' as const,
-            lineHeight: 52,
-            letterSpacing: -1,
-        },
-        h1: {
-            fontSize: 28,
-            fontWeight: '700' as const,
-            lineHeight: 34,
-            letterSpacing: -0.5,
-        },
-        h2: {
-            fontSize: 22,
-            fontWeight: '600' as const,
-            lineHeight: 28,
-        },
-        h3: {
-            fontSize: 18,
-            fontWeight: '600' as const,
-            lineHeight: 24,
-        },
-        body: {
-            fontSize: 16,
-            fontWeight: '400' as const,
-            lineHeight: 24,
-        },
-        bodySmall: {
-            fontSize: 14,
-            fontWeight: '400' as const,
-            lineHeight: 20,
-        },
-        caption: {
-            fontSize: 12,
-            fontWeight: '400' as const,
-            lineHeight: 16,
-        },
-        label: {
-            fontSize: 12,
-            fontWeight: '600' as const,
-            lineHeight: 16,
-            letterSpacing: 0.5,
-            textTransform: 'uppercase' as const,
-        },
-        button: {
-            fontSize: 16,
-            fontWeight: '600' as const,
-            lineHeight: 20,
-            letterSpacing: 0.3,
-        },
-    },
+export const toPersianNumber = (num: number | string): string => {
+    return String(num).replace(/[0-9]/g, (digit) => persianDigits[parseInt(digit, 10)]);
 };
 
-export type Typography = typeof typography;
+export const toEnglishNumber = (str: string): string => {
+    return str.replace(/[۰-۹]/g, (digit) => String(persianDigits.indexOf(digit)));
+};

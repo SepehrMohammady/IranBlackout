@@ -1,36 +1,39 @@
-# Iran Blackout
+# IranBlackout
 
-> ✊ **Woman, Life, Freedom** | زن، زندگی، آزادی
+A cross-platform React Native application for monitoring internet connectivity in Iran. Built with privacy-first design, supporting crowdsourced telemetry and integration with external monitoring APIs.
 
-A privacy-focused internet connectivity monitoring app for Iran, built with React Native.
-
-![Status](https://img.shields.io/badge/Platform-Android-green)
-![License](https://img.shields.io/badge/License-MIT-blue)
+> **Stay strong. Stay connected.**  
+> Access is a right, not a privilege.
 
 ## Features
 
-- 📊 **Real-time Dashboard** - Live internet status by region and ISP
-- 🗺️ **Interactive Map** - Iran provinces map with connectivity visualization
-- 📈 **Timeline Charts** - Historical outage data and trends
+- 🗺️ **Real-time Map** - Province-level connectivity status visualization
+- 📊 **ISP/MNO Monitoring** - Track status of major Iranian internet providers
+- 📈 **Outage Timeline** - Historical data and time-series graphs
 - 🔔 **Alerts** - Push notifications for connectivity changes
-- 🌓 **Dark/Light Mode** - Beautiful theming with activist-inspired design
-- 🌐 **Bilingual** - English and Farsi (فارسی) with full RTL support
-- 🔒 **Privacy-First** - No GPS, no personal data, anonymous telemetry
-- 📴 **Offline Mode** - Cached data when you can't connect
+- 🌙 **Dark/Light Mode** - Automatic system detection with manual override
+- 🌐 **Bilingual** - Full English and Farsi (فارسی) support with RTL
+- 🔒 **Privacy First** - No GPS, no personal identifiers, encrypted communication
+- 📴 **Offline Mode** - Cached data when disconnected
 
-## Quick Start
+## Screenshots
+
+*Coming soon*
+
+## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
-- Java JDK 17
-- Android Studio with SDK
-- React Native CLI
+- React Native development environment ([Setup Guide](https://reactnative.dev/docs/environment-setup))
+- Android Studio (for Android development)
+- Xcode (for iOS development, macOS only)
 
 ### Installation
 
 ```bash
-# Clone and enter directory
+# Clone the repository
+git clone https://github.com/SepehrMohammady/IranBlackout.git
 cd IranBlackout
 
 # Install dependencies
@@ -38,67 +41,108 @@ npm install
 
 # Start Metro bundler
 npm start
-
-# Run on Android (in separate terminal)
-npm run android
 ```
+
+### Running on Android
+
+```bash
+# Start Android emulator or connect device
+npx react-native run-android
+```
+
+### Running on iOS
+
+```bash
+# iOS only (requires macOS)
+cd ios && pod install && cd ..
+npx react-native run-ios
+```
+
+## Tech Stack
+
+- **React Native** 0.83 - Cross-platform mobile framework
+- **TypeScript** - Type-safe JavaScript
+- **React Navigation** - Navigation library
+- **react-i18next** - Internationalization with RTL support
+- **react-native-svg** - SVG rendering for map
+- **react-native-chart-kit** - Data visualization
+- **AsyncStorage** - Offline caching
+
+## Data Sources
+
+The app integrates with multiple free/open APIs for data redundancy:
+
+| Source | Description | API |
+|--------|-------------|-----|
+| **OONI** | Network interference measurements | [OONI Explorer](https://explorer.ooni.org) |
+| **Cloudflare Radar** | Traffic anomaly detection | [Radar API](https://radar.cloudflare.com) |
+| **RIPE Atlas** | Network probe status | [RIPE Atlas](https://atlas.ripe.net) |
+| **Crowdsourced** | Anonymous user reports | Built-in telemetry |
+
+## Privacy
+
+IranBlackout is designed with privacy as a core principle:
+
+- ✅ **No GPS coordinates** - Only city-level location from IP
+- ✅ **No personal identifiers** - Random anonymous device ID
+- ✅ **No login required** - Fully anonymous usage
+- ✅ **Opt-in telemetry** - User consent required
+- ✅ **Encrypted communication** - HTTPS only
+- ✅ **Minimal data collection** - Only connectivity status
 
 ## Project Structure
 
 ```
 src/
-├── components/     # Reusable UI components
-│   └── common/     # StatusBadge, Card, ISPCard
-├── screens/        # App screens
+├── App.tsx              # Main entry point
+├── components/          # Reusable UI components
+│   ├── IranMap.tsx      # SVG map with provinces
+│   ├── ISPStatusCard.tsx
+│   └── StatusIndicator.tsx
+├── i18n/                # Translations
+│   ├── index.ts
+│   └── locales/
+│       ├── en.json
+│       └── fa.json
+├── navigation/          # React Navigation setup
+│   └── RootNavigator.tsx
+├── screens/             # Main screens
 │   ├── HomeScreen.tsx
 │   ├── TimelineScreen.tsx
 │   ├── AlertsScreen.tsx
 │   └── SettingsScreen.tsx
-├── navigation/     # React Navigation setup
-├── i18n/           # English & Farsi translations
-├── services/       # OONI API integration
-├── store/          # Zustand state management
-├── theme/          # Colors, typography, spacing
-├── types/          # TypeScript definitions
-└── data/           # Iran provinces & ISPs data
+├── services/            # API clients and services
+│   ├── api/
+│   │   ├── ooniClient.ts
+│   │   ├── cloudflareClient.ts
+│   │   └── ripeClient.ts
+│   ├── cache.ts
+│   └── telemetry.ts
+├── theme/               # Design system
+│   ├── colors.ts
+│   ├── ThemeContext.tsx
+│   └── typography.ts
+└── types/               # TypeScript interfaces
+    └── connectivity.ts
 ```
-
-## Data Sources
-
-This app integrates with free, public APIs:
-
-| Source | Description | Access |
-|--------|-------------|--------|
-| [OONI](https://ooni.org) | Open Observatory of Network Interference | Free, no key |
-| [Cloudflare Radar](https://radar.cloudflare.com) | Global internet traffic data | Free tier |
-| [RIPE Atlas](https://atlas.ripe.net) | Internet measurement network | Free registration |
-
-## Privacy
-
-**Your privacy is protected:**
-
-- ❌ No GPS coordinates collected
-- ❌ No device identifiers
-- ❌ No personal information
-- ✅ City-level location only (if reported)
-- ✅ All data is anonymized
-- ✅ HTTPS encryption for all traffic
-
-## Localization
-
-The app supports:
-
-- **English** - LTR layout
-- **فارسی (Farsi)** - RTL layout with Persian numerals (۱۲۳)
 
 ## Contributing
 
-This is an open-source project supporting freedom of information. Contributions welcome!
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT License - Free to use, modify, and distribute.
+This project is open source. See LICENSE file for details.
+
+## Acknowledgments
+
+- [OONI](https://ooni.org) - Open Observatory of Network Interference
+- [Cloudflare Radar](https://radar.cloudflare.com) - Internet insights
+- [RIPE NCC](https://atlas.ripe.net) - RIPE Atlas network
+- The people of Iran fighting for freedom and access
 
 ---
 
-**Standing with Iran's fight for freedom** ✊
+**Made with ❤️ for Iran**
+
+*Together, we document. Together, we resist.*

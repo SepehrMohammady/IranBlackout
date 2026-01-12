@@ -1,81 +1,44 @@
-// Iran Blackout - Color Palette
-// Activist, supportive, and empowering design
+// IranBlackout Color Palette
+// Activist-aligned: bold, trustworthy, resilient
 
 export const colors = {
-    dark: {
-        // Core backgrounds
-        background: '#0A0A0F',
-        surface: '#141420',
-        surfaceElevated: '#1E1E2E',
+    // Primary - Deep blue representing trust and freedom
+    primary: '#1E3A5F',
+    primaryLight: '#2E5A8F',
+    primaryDark: '#0D1F33',
 
-        // Primary - Cyan signal/connectivity
-        primary: '#00D9FF',
-        primaryDark: '#0099B3',
-        primaryLight: '#66E8FF',
+    // Accent - Warm amber for hope and resilience
+    accent: '#F59E0B',
+    accentLight: '#FBBF24',
+    accentDark: '#D97706',
 
-        // Accent - Gold for hope/freedom
-        accent: '#FFD700',
-        accentDark: '#B39700',
-        accentLight: '#FFE866',
+    // Status colors
+    online: '#10B981',      // Green - Connected
+    limited: '#F59E0B',     // Amber - Partial connectivity
+    offline: '#EF4444',     // Red - No connectivity
+    unknown: '#6B7280',     // Gray - Unknown status
 
-        // Status colors
-        online: '#22C55E',
-        onlineLight: '#4ADE80',
-        limited: '#F59E0B',
-        limitedLight: '#FBBF24',
-        offline: '#EF4444',
-        offlineLight: '#F87171',
-
-        // Text
-        text: '#FFFFFF',
-        textSecondary: '#A0A0B0',
-        textMuted: '#6B6B7B',
-
-        // Borders & dividers
-        border: '#2A2A3A',
-        divider: '#1F1F2F',
-
-        // Overlay for modals
-        overlay: 'rgba(0, 0, 0, 0.7)',
+    // Light theme
+    light: {
+        background: '#F8FAFC',
+        surface: '#FFFFFF',
+        surfaceVariant: '#F1F5F9',
+        text: '#0F172A',
+        textSecondary: '#64748B',
+        border: '#E2E8F0',
+        divider: '#E2E8F0',
     },
 
-    light: {
-        // Core backgrounds
-        background: '#FAFAFA',
-        surface: '#FFFFFF',
-        surfaceElevated: '#FFFFFF',
-
-        // Primary
-        primary: '#0077B6',
-        primaryDark: '#005580',
-        primaryLight: '#00A8E8',
-
-        // Accent
-        accent: '#D4A017',
-        accentDark: '#9A7512',
-        accentLight: '#EDB41C',
-
-        // Status colors
-        online: '#16A34A',
-        onlineLight: '#22C55E',
-        limited: '#D97706',
-        limitedLight: '#F59E0B',
-        offline: '#DC2626',
-        offlineLight: '#EF4444',
-
-        // Text
-        text: '#1A1A2E',
-        textSecondary: '#4A4A5A',
-        textMuted: '#8A8A9A',
-
-        // Borders & dividers
-        border: '#E0E0E8',
-        divider: '#F0F0F5',
-
-        // Overlay
-        overlay: 'rgba(0, 0, 0, 0.5)',
+    // Dark theme
+    dark: {
+        background: '#0F172A',
+        surface: '#1E293B',
+        surfaceVariant: '#334155',
+        text: '#F8FAFC',
+        textSecondary: '#94A3B8',
+        border: '#334155',
+        divider: '#1E293B',
     },
 };
 
-export type ThemeColors = typeof colors.dark;
-export type ColorScheme = 'dark' | 'light';
+export type ThemeColors = typeof colors.light;
