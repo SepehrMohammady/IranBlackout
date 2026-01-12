@@ -1,0 +1,103 @@
+{
+    "app_name": "Iran Blackout",
+    "navigation": {
+        "dashboard": "Dashboard",
+        "timeline": "Timeline",
+        "alerts": "Alerts",
+        "settings": "Settings"
+    },
+    "status": {
+        "online": "Online",
+        "limited": "Limited",
+        "offline": "Offline",
+        "unknown": "Unknown"
+    },
+    "dashboard": {
+        "title": "Internet Status",
+        "subtitle": "Real-time connectivity monitoring",
+        "last_updated": "Last updated",
+        "regions_online": "Regions Online",
+        "active_outages": "Active Outages",
+        "isp_status": "ISP/MNO Status",
+        "tap_region": "Tap a region for details",
+        "loading": "Loading data...",
+        "no_data": "No data available"
+    },
+    "timeline": {
+        "title": "Outage Timeline",
+        "subtitle": "Historical connectivity data",
+        "past_24h": "Past 24 Hours",
+        "past_7d": "Past 7 Days",
+        "past_30d": "Past 30 Days",
+        "no_outages": "No outages recorded",
+        "total_outages": "Total Outages",
+        "avg_duration": "Avg. Duration"
+    },
+    "alerts": {
+        "title": "Alerts",
+        "subtitle": "Connectivity notifications",
+        "no_alerts": "No alerts yet",
+        "mark_read": "Mark as read",
+        "clear_all": "Clear all",
+        "outage_detected": "Outage Detected",
+        "connectivity_restored": "Connectivity Restored",
+        "limited_access": "Limited Access Detected"
+    },
+    "settings": {
+        "title": "Settings",
+        "appearance": "Appearance",
+        "dark_mode": "Dark Mode",
+        "language": "Language",
+        "notifications": "Notifications",
+        "push_notifications": "Push Notifications",
+        "alert_types": "Alert Types",
+        "privacy": "Privacy",
+        "anonymous_reporting": "Anonymous Reporting",
+        "about": "About",
+        "version": "Version",
+        "source_code": "Source Code",
+        "disclaimer": "Disclaimer"
+    },
+    "regions": {
+        "tehran": "Tehran",
+        "isfahan": "Isfahan",
+        "shiraz": "Shiraz",
+        "mashhad": "Mashhad",
+        "tabriz": "Tabriz",
+        "ahvaz": "Ahvaz",
+        "kermanshah": "Kermanshah",
+        "karaj": "Karaj",
+        "qom": "Qom",
+        "rasht": "Rasht"
+    },
+    "isps": {
+        "mci": "MCI (Hamrah-e Aval)",
+        "irancell": "Irancell (MTN)",
+        "rightel": "Rightel",
+        "tci": "TCI (Mokhaberat)",
+        "shatel": "Shatel",
+        "asiatech": "Asiatech",
+        "pars_online": "Pars Online"
+    },
+    "common": {
+        "retry": "Retry",
+        "refresh": "Refresh",
+        "close": "Close",
+        "save": "Save",
+        "cancel": "Cancel",
+        "offline_mode": "Offline Mode",
+        "cached_data": "Showing cached data",
+        "connection_error": "Connection error",
+        "hours_ago": "{{count}} hour ago",
+        "hours_ago_plural": "{{count}} hours ago",
+        "minutes_ago": "{{count}} minute ago",
+        "minutes_ago_plural": "{{count}} minutes ago",
+        "just_now": "Just now"
+    },
+    "about": {
+        "tagline": "Standing with Iran's fight for freedom",
+        "description": "Iran Blackout monitors internet connectivity across Iran, providing real-time status updates through crowdsourced data and public monitoring services.",
+        "privacy_statement": "Your privacy is protected. No GPS coordinates, personal identifiers, or device information is collected or transmitted.",
+        "solidarity": "✊ Woman, Life, Freedom"
+    }
+}

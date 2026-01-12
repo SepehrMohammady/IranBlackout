@@ -1,0 +1,103 @@
+{
+    "app_name": "قطعی ایران",
+    "navigation": {
+        "dashboard": "داشبورد",
+        "timeline": "جدول زمانی",
+        "alerts": "هشدارها",
+        "settings": "تنظیمات"
+    },
+    "status": {
+        "online": "آنلاین",
+        "limited": "محدود",
+        "offline": "آفلاین",
+        "unknown": "نامشخص"
+    },
+    "dashboard": {
+        "title": "وضعیت اینترنت",
+        "subtitle": "نظارت بر اتصال به صورت زنده",
+        "last_updated": "آخرین به‌روزرسانی",
+        "regions_online": "مناطق آنلاین",
+        "active_outages": "قطعی‌های فعال",
+        "isp_status": "وضعیت اپراتورها",
+        "tap_region": "برای جزئیات روی منطقه بزنید",
+        "loading": "در حال بارگذاری...",
+        "no_data": "داده‌ای موجود نیست"
+    },
+    "timeline": {
+        "title": "جدول زمانی قطعی",
+        "subtitle": "داده‌های تاریخی اتصال",
+        "past_24h": "۲۴ ساعت گذشته",
+        "past_7d": "۷ روز گذشته",
+        "past_30d": "۳۰ روز گذشته",
+        "no_outages": "قطعی ثبت نشده",
+        "total_outages": "کل قطعی‌ها",
+        "avg_duration": "میانگین مدت"
+    },
+    "alerts": {
+        "title": "هشدارها",
+        "subtitle": "اعلان‌های اتصال",
+        "no_alerts": "هنوز هشداری نیست",
+        "mark_read": "علامت‌گذاری به عنوان خوانده شده",
+        "clear_all": "پاک کردن همه",
+        "outage_detected": "قطعی شناسایی شد",
+        "connectivity_restored": "اتصال برقرار شد",
+        "limited_access": "دسترسی محدود شناسایی شد"
+    },
+    "settings": {
+        "title": "تنظیمات",
+        "appearance": "ظاهر",
+        "dark_mode": "حالت تاریک",
+        "language": "زبان",
+        "notifications": "اعلان‌ها",
+        "push_notifications": "اعلان‌های فوری",
+        "alert_types": "انواع هشدار",
+        "privacy": "حریم خصوصی",
+        "anonymous_reporting": "گزارش‌دهی ناشناس",
+        "about": "درباره",
+        "version": "نسخه",
+        "source_code": "کد منبع",
+        "disclaimer": "سلب مسئولیت"
+    },
+    "regions": {
+        "tehran": "تهران",
+        "isfahan": "اصفهان",
+        "shiraz": "شیراز",
+        "mashhad": "مشهد",
+        "tabriz": "تبریز",
+        "ahvaz": "اهواز",
+        "kermanshah": "کرمانشاه",
+        "karaj": "کرج",
+        "qom": "قم",
+        "rasht": "رشت"
+    },
+    "isps": {
+        "mci": "همراه اول",
+        "irancell": "ایرانسل",
+        "rightel": "رایتل",
+        "tci": "مخابرات",
+        "shatel": "شاتل",
+        "asiatech": "آسیاتک",
+        "pars_online": "پارس آنلاین"
+    },
+    "common": {
+        "retry": "تلاش مجدد",
+        "refresh": "بروزرسانی",
+        "close": "بستن",
+        "save": "ذخیره",
+        "cancel": "لغو",
+        "offline_mode": "حالت آفلاین",
+        "cached_data": "نمایش داده‌های ذخیره شده",
+        "connection_error": "خطای اتصال",
+        "hours_ago": "{{count}} ساعت پیش",
+        "hours_ago_plural": "{{count}} ساعت پیش",
+        "minutes_ago": "{{count}} دقیقه پیش",
+        "minutes_ago_plural": "{{count}} دقیقه پیش",
+        "just_now": "همین الان"
+    },
+    "about": {
+        "tagline": "در کنار مبارزه ایران برای آزادی",
+        "description": "قطعی ایران وضعیت اتصال اینترنت در سراسر ایران را نظارت می‌کند و از طریق داده‌های جمع‌آوری شده و سرویس‌های نظارت عمومی، به‌روزرسانی‌های زنده ارائه می‌دهد.",
+        "privacy_statement": "حریم خصوصی شما محفوظ است. هیچ مختصات GPS، شناسه شخصی یا اطلاعات دستگاه جمع‌آوری یا ارسال نمی‌شود.",
+        "solidarity": "✊ زن، زندگی، آزادی"
+    }
+}

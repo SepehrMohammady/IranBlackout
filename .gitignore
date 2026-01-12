@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# React Native
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Android
+android/app/build/
+android/build/
+android/.gradle/
+*.apk
+*.aab
+!app-release.apk
+
+# iOS
+ios/Pods/
+ios/build/
+*.ipa
+
+# Metro
+.metro-health-check*
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Environment
+.env
+.env.*
+
+# Testing
+coverage/
+
+# Temporary
+*.log
+*.tmp
+.cache/
