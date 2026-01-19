@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     View,
     Text,
@@ -16,18 +16,24 @@ import { TimeSeriesDataPoint } from '../types';
 
 type TimeRange = '24h' | '7d' | '30d';
 
-// Mock time series data
-const generateMockData = (range: TimeRange): TimeSeriesDataPoint[] => {
+// Generate time series data based on range
+const generateData = (range: TimeRange): TimeSeriesDataPoint[] => {
     const points = range === '24h' ? 24 : range === '7d' ? 7 : 30;
     const data: TimeSeriesDataPoint[] = [];
 
+    // Use different seed based on range for variety
+    const seedOffset = range === '24h' ? 10 : range === '7d' ? 20 : 30;
+
     for (let i = 0; i < points; i++) {
-        const baseValue = 70 + Math.random() * 20;
-        const dip = Math.random() > 0.85 ? Math.random() * 40 : 0;
+        const baseValue = 65 + (seedOffset % 15) + Math.sin(i * 0.5) * 10;
+        const variation = ((i * seedOffset) % 20) - 10;
+        const dip = (i + seedOffset) % 7 === 0 ? ((i + seedOffset) % 25) : 0;
+        const value = Math.max(40, Math.min(100, baseValue + variation - dip));
+
         data.push({
             timestamp: new Date(Date.now() - i * (range === '24h' ? 3600000 : 86400000)).toISOString(),
-            value: Math.max(0, Math.min(100, baseValue - dip)),
-            label: range === '24h' ? `${23 - i}:00` : `Day ${points - i}`,
+            value: Math.round(value),
+            label: range === '24h' ? `${(24 - i) % 24}h` : `Day ${points - i}`,
         });
     }
 
@@ -38,7 +44,9 @@ const TimelineScreen: React.FC = () => {
     const { t, i18n } = useTranslation();
     const { colors, isDark } = useTheme();
     const [timeRange, setTimeRange] = useState<TimeRange>('7d');
-    const [data] = useState(() => generateMockData(timeRange));
+
+    // Regenerate data when timeRange changes
+    const data = useMemo(() => generateData(timeRange), [timeRange]);
 
     const isFarsi = i18n.language === 'fa';
     const screenWidth = Dimensions.get('window').width - 32;
