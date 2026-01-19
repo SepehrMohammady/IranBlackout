@@ -14,7 +14,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, typography, ThemeMode } from '../theme';
 import { setLanguage } from '../i18n';
 
-const APP_VERSION = '1.0.0';
+// Import version from package.json
+const packageJson = require('../../package.json');
+const APP_VERSION = packageJson.version;
 
 const SettingsScreen: React.FC = () => {
     const { t, i18n } = useTranslation();
