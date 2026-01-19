@@ -71,6 +71,7 @@ export interface ChartData {
 export interface OONIMeasurement {
     measurement_uid: string;
     probe_cc: string;
+    probe_asn: number;
     test_name: string;
     measurement_start_time: string;
     anomaly: boolean;

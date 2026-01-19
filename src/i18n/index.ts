@@ -1,7 +1,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { I18nManager } from 'react-native';
+import { I18nManager, Alert } from 'react-native';
 import * as RNLocalize from 'react-native-localize';
+import RNRestart from 'react-native-restart';
 
 import en from './locales/en.json';
 import fa from './locales/fa.json';
@@ -39,17 +40,37 @@ i18n
         },
     });
 
-// Handle RTL for Farsi
+// Handle RTL for Farsi - requires app restart
 export const setLanguage = async (languageCode: string): Promise<void> => {
     const isRTL = languageCode === 'fa';
+    const needsRestart = I18nManager.isRTL !== isRTL;
 
-    if (I18nManager.isRTL !== isRTL) {
+    // Change language first
+    await i18n.changeLanguage(languageCode);
+
+    // If RTL state needs to change, prompt for restart
+    if (needsRestart) {
         I18nManager.allowRTL(isRTL);
         I18nManager.forceRTL(isRTL);
-        // Note: App needs to restart for RTL changes to take effect
-    }
 
-    await i18n.changeLanguage(languageCode);
+        // Show restart prompt
+        Alert.alert(
+            languageCode === 'fa' ? 'راه‌اندازی مجدد برنامه' : 'Restart Required',
+            languageCode === 'fa'
+                ? 'برای اعمال تغییرات زبان، برنامه باید راه‌اندازی مجدد شود.'
+                : 'The app needs to restart to apply language changes.',
+            [
+                {
+                    text: languageCode === 'fa' ? 'راه‌اندازی مجدد' : 'Restart Now',
+                    onPress: () => RNRestart.restart(),
+                },
+                {
+                    text: languageCode === 'fa' ? 'بعداً' : 'Later',
+                    style: 'cancel',
+                },
+            ]
+        );
+    }
 };
 
 export const getCurrentLanguage = (): string => {
@@ -57,7 +78,7 @@ export const getCurrentLanguage = (): string => {
 };
 
 export const isRTL = (): boolean => {
-    return i18n.language === 'fa';
+    return I18nManager.isRTL;
 };
 
 export default i18n;

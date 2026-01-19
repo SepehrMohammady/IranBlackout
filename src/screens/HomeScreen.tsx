@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
     View,
     Text,
     ScrollView,
     RefreshControl,
     StyleSheet,
-    Dimensions,
+    ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,41 +13,176 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, typography } from '../theme';
 import IranMap from '../components/IranMap';
 import ISPStatusCard from '../components/ISPStatusCard';
-import { ISP, Region, ConnectivityStatus } from '../types';
+import { ISP, Region, ConnectivityStatus, OONIMeasurement } from '../types';
+import { ooniClient } from '../services/api';
+import { cache } from '../services/cache';
 
-// Mock data for demonstration
-const mockRegions: Region[] = [
-    { id: 'tehran', nameEn: 'Tehran', nameFa: 'تهران', status: 'online', lastUpdated: new Date().toISOString() },
-    { id: 'isfahan', nameEn: 'Isfahan', nameFa: 'اصفهان', status: 'limited', lastUpdated: new Date().toISOString() },
-    { id: 'shiraz', nameEn: 'Shiraz', nameFa: 'شیراز', status: 'online', lastUpdated: new Date().toISOString() },
-    { id: 'mashhad', nameEn: 'Mashhad', nameFa: 'مشهد', status: 'offline', lastUpdated: new Date().toISOString() },
-    { id: 'tabriz', nameEn: 'Tabriz', nameFa: 'تبریز', status: 'online', lastUpdated: new Date().toISOString() },
-];
+// Iranian ISPs and their ASN mappings
+const ISP_MAPPING: Record<string, { nameEn: string; nameFa: string; type: 'mobile' | 'fixed' | 'both' }> = {
+    'AS44244': { nameEn: 'Irancell', nameFa: 'ایرانسل', type: 'mobile' },
+    'AS197207': { nameEn: 'MCI (Hamrah-e-Aval)', nameFa: 'همراه اول', type: 'mobile' },
+    'AS57218': { nameEn: 'Rightel', nameFa: 'رایتل', type: 'mobile' },
+    'AS58224': { nameEn: 'TCI (Mokhaberat)', nameFa: 'مخابرات', type: 'fixed' },
+    'AS31549': { nameEn: 'Shatel', nameFa: 'شاتل', type: 'fixed' },
+    'AS43754': { nameEn: 'Asiatech', nameFa: 'آسیاتک', type: 'fixed' },
+    'AS16322': { nameEn: 'ParsOnline', nameFa: 'پارس آنلاین', type: 'fixed' },
+    'AS25124': { nameEn: 'Afranet', nameFa: 'افرانت', type: 'fixed' },
+};
 
-const mockISPs: ISP[] = [
-    { id: 'mci', nameEn: 'MCI (Hamrah-e-Aval)', nameFa: 'همراه اول', type: 'mobile', status: 'online', lastUpdated: new Date().toISOString() },
-    { id: 'irancell', nameEn: 'Irancell', nameFa: 'ایرانسل', type: 'mobile', status: 'limited', lastUpdated: new Date().toISOString() },
-    { id: 'rightel', nameEn: 'Rightel', nameFa: 'رایتل', type: 'mobile', status: 'online', lastUpdated: new Date().toISOString() },
-    { id: 'tci', nameEn: 'TCI', nameFa: 'مخابرات', type: 'fixed', status: 'online', lastUpdated: new Date().toISOString() },
-    { id: 'shatel', nameEn: 'Shatel', nameFa: 'شاتل', type: 'fixed', status: 'offline', lastUpdated: new Date().toISOString() },
-    { id: 'asiatech', nameEn: 'Asiatech', nameFa: 'آسیاتک', type: 'fixed', status: 'online', lastUpdated: new Date().toISOString() },
+// Region mappings for Iran provinces
+const REGION_DATA: Region[] = [
+    { id: 'tehran', nameEn: 'Tehran', nameFa: 'تهران', status: 'unknown', lastUpdated: '' },
+    { id: 'isfahan', nameEn: 'Isfahan', nameFa: 'اصفهان', status: 'unknown', lastUpdated: '' },
+    { id: 'shiraz', nameEn: 'Shiraz', nameFa: 'شیراز', status: 'unknown', lastUpdated: '' },
+    { id: 'mashhad', nameEn: 'Mashhad', nameFa: 'مشهد', status: 'unknown', lastUpdated: '' },
+    { id: 'tabriz', nameEn: 'Tabriz', nameFa: 'تبریز', status: 'unknown', lastUpdated: '' },
 ];
 
 const HomeScreen: React.FC = () => {
     const { t, i18n } = useTranslation();
     const { colors, isDark, isRTL } = useTheme();
     const [refreshing, setRefreshing] = useState(false);
-    const [regions] = useState<Region[]>(mockRegions);
-    const [isps] = useState<ISP[]>(mockISPs);
+    const [loading, setLoading] = useState(true);
+    const [regions, setRegions] = useState<Region[]>(REGION_DATA);
+    const [isps, setIsps] = useState<ISP[]>([]);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [anomalyCount, setAnomalyCount] = useState(0);
+    const [measurementCount, setMeasurementCount] = useState(0);
+
+    // Calculate ISP status from OONI measurements
+    const calculateISPStatus = (measurements: OONIMeasurement[]): ISP[] => {
+        const ispStats: Record<string, { total: number; anomalies: number; confirmed: number }> = {};
+
+        measurements.forEach(m => {
+            const asn = `AS${m.probe_asn}`;
+            if (!ispStats[asn]) {
+                ispStats[asn] = { total: 0, anomalies: 0, confirmed: 0 };
+            }
+            ispStats[asn].total++;
+            if (m.anomaly) ispStats[asn].anomalies++;
+            if (m.confirmed) ispStats[asn].confirmed++;
+        });
+
+        const result: ISP[] = [];
+        Object.entries(ISP_MAPPING).forEach(([asn, info]) => {
+            const stats = ispStats[asn] || { total: 0, anomalies: 0, confirmed: 0 };
+            let status: ConnectivityStatus = 'online';
+
+            if (stats.total > 0) {
+                const anomalyRate = (stats.anomalies + stats.confirmed) / stats.total;
+                if (anomalyRate > 0.5) status = 'offline';
+                else if (anomalyRate > 0.2) status = 'limited';
+            } else {
+                status = 'unknown';
+            }
+
+            result.push({
+                id: asn,
+                nameEn: info.nameEn,
+                nameFa: info.nameFa,
+                type: info.type,
+                status,
+                lastUpdated: new Date().toISOString(),
+            });
+        });
+
+        return result;
+    };
+
+    // Update region statuses based on ISP data
+    const updateRegionStatus = (ispData: ISP[]): Region[] => {
+        // Simplified: base region status on overall ISP status
+        const offlineCount = ispData.filter(i => i.status === 'offline').length;
+        const limitedCount = ispData.filter(i => i.status === 'limited').length;
+
+        let overallStatus: ConnectivityStatus = 'online';
+        if (offlineCount > ispData.length / 2) overallStatus = 'offline';
+        else if (limitedCount > ispData.length / 3 || offlineCount > 0) overallStatus = 'limited';
+
+        // For now, set all regions to the overall status
+        // In a real app, this would use regional measurement data
+        return REGION_DATA.map(r => ({
+            ...r,
+            status: overallStatus,
+            lastUpdated: new Date().toISOString(),
+        }));
+    };
+
+    const fetchData = useCallback(async (forceRefresh = false) => {
+        try {
+            setError(null);
+
+            // Try cache first if not forcing refresh
+            if (!forceRefresh) {
+                const cachedData = await cache.get<{ isps: ISP[]; regions: Region[]; anomalies: number; measurements: number }>('home_data');
+                if (cachedData) {
+                    setIsps(cachedData.isps);
+                    setRegions(cachedData.regions);
+                    setAnomalyCount(cachedData.anomalies);
+                    setMeasurementCount(cachedData.measurements);
+                    setLastUpdated(await cache.getLastUpdated('home_data'));
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            // Fetch fresh data from OONI API
+            const response = await ooniClient.getMeasurements({
+                probe_cc: 'IR',
+                limit: 200,
+                since: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            });
+
+            const measurements = response.results;
+            const anomalies = measurements.filter(m => m.anomaly || m.confirmed);
+
+            setMeasurementCount(measurements.length);
+            setAnomalyCount(anomalies.length);
+
+            const ispData = calculateISPStatus(measurements);
+            setIsps(ispData);
+
+            const regionData = updateRegionStatus(ispData);
+            setRegions(regionData);
+
+            setLastUpdated(new Date());
+
+            // Cache the data for 5 minutes
+            await cache.set('home_data', {
+                isps: ispData,
+                regions: regionData,
+                anomalies: anomalies.length,
+                measurements: measurements.length,
+            }, 5 * 60 * 1000);
+
+        } catch (err) {
+            console.error('Failed to fetch OONI data:', err);
+            setError(t('errors.fetchFailed'));
+        } finally {
+            setLoading(false);
+        }
+    }, [t]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        // TODO: Fetch real data from APIs
-        await new Promise<void>(resolve => setTimeout(resolve, 1500));
+        await fetchData(true);
         setRefreshing(false);
-    }, []);
+    }, [fetchData]);
 
     const isFarsi = i18n.language === 'fa';
+
+    const formatTime = (date: Date | null): string => {
+        if (!date) return '';
+        return date.toLocaleTimeString(isFarsi ? 'fa-IR' : 'en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -73,38 +208,75 @@ const HomeScreen: React.FC = () => {
                     </Text>
                 </View>
 
-                {/* Motivational message */}
-                <View style={[styles.messageCard, { backgroundColor: colors.primary }]}>
-                    <Text style={[typography.body, styles.message]}>
-                        {t('messages.stayStrong')}
-                    </Text>
+                {/* Stats Card */}
+                <View style={[styles.statsCard, { backgroundColor: colors.primary }]}>
+                    <View style={styles.statsRow}>
+                        <View style={styles.statItem}>
+                            <Text style={[typography.h2, styles.statValue]}>{measurementCount}</Text>
+                            <Text style={styles.statLabel}>{t('home.measurements')}</Text>
+                        </View>
+                        <View style={styles.statItem}>
+                            <Text style={[typography.h2, styles.statValue, { color: anomalyCount > 0 ? '#FCA5A5' : '#A7F3D0' }]}>
+                                {anomalyCount}
+                            </Text>
+                            <Text style={styles.statLabel}>{t('home.anomalies')}</Text>
+                        </View>
+                    </View>
+                    {lastUpdated && (
+                        <Text style={styles.lastUpdated}>
+                            {t('home.lastUpdated')}: {formatTime(lastUpdated)}
+                        </Text>
+                    )}
                 </View>
+
+                {/* Loading / Error State */}
+                {loading && (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color={colors.primary} />
+                        <Text style={[typography.body, { color: colors.textSecondary, marginTop: 12 }]}>
+                            {t('home.loadingData')}
+                        </Text>
+                    </View>
+                )}
+
+                {error && (
+                    <View style={[styles.errorCard, { backgroundColor: colors.offline + '20' }]}>
+                        <Text style={[typography.body, { color: colors.offline }]}>{error}</Text>
+                    </View>
+                )}
 
                 {/* Iran Map */}
-                <View style={styles.section}>
-                    <Text style={[typography.h3, styles.sectionTitle, { color: colors.text }]}>
-                        {t('home.mapTitle')}
-                    </Text>
-                    <View style={[styles.mapContainer, { backgroundColor: colors.surface }]}>
-                        <IranMap regions={regions} />
+                {!loading && (
+                    <View style={styles.section}>
+                        <Text style={[typography.h3, styles.sectionTitle, { color: colors.text }]}>
+                            {t('home.mapTitle')}
+                        </Text>
+                        <View style={[styles.mapContainer, { backgroundColor: colors.surface }]}>
+                            <IranMap regions={regions} />
+                        </View>
                     </View>
-                </View>
+                )}
 
                 {/* ISP Status List */}
-                <View style={styles.section}>
-                    <Text style={[typography.h3, styles.sectionTitle, { color: colors.text }]}>
-                        {t('home.ispTitle')}
-                    </Text>
-                    <View style={styles.ispList}>
-                        {isps.map((isp) => (
-                            <ISPStatusCard key={isp.id} isp={isp} isFarsi={isFarsi} />
-                        ))}
+                {!loading && isps.length > 0 && (
+                    <View style={styles.section}>
+                        <Text style={[typography.h3, styles.sectionTitle, { color: colors.text }]}>
+                            {t('home.ispTitle')}
+                        </Text>
+                        <View style={styles.ispList}>
+                            {isps.map((isp) => (
+                                <ISPStatusCard key={isp.id} isp={isp} isFarsi={isFarsi} />
+                            ))}
+                        </View>
                     </View>
-                </View>
+                )}
 
-                {/* Footer message */}
+                {/* Data Source Info */}
                 <View style={styles.footer}>
                     <Text style={[typography.caption, { color: colors.textSecondary, textAlign: 'center' }]}>
+                        {t('home.dataSource')}
+                    </Text>
+                    <Text style={[typography.caption, { color: colors.textSecondary, textAlign: 'center', marginTop: 4 }]}>
                         {t('messages.together')}
                     </Text>
                 </View>
@@ -135,15 +307,41 @@ const styles = StyleSheet.create({
     subtitle: {
         marginBottom: 8,
     },
-    messageCard: {
-        padding: 16,
-        borderRadius: 12,
+    statsCard: {
+        padding: 20,
+        borderRadius: 16,
         marginBottom: 24,
     },
-    message: {
+    statsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginBottom: 12,
+    },
+    statItem: {
+        alignItems: 'center',
+    },
+    statValue: {
         color: '#FFFFFF',
+        fontWeight: 'bold',
+    },
+    statLabel: {
+        color: 'rgba(255,255,255,0.8)',
+        fontSize: 12,
+        marginTop: 4,
+    },
+    lastUpdated: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: 11,
         textAlign: 'center',
-        fontWeight: '500',
+    },
+    loadingContainer: {
+        padding: 40,
+        alignItems: 'center',
+    },
+    errorCard: {
+        padding: 16,
+        borderRadius: 12,
+        marginBottom: 16,
     },
     section: {
         marginBottom: 24,

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { StatusBar, LogBox } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BootSplash from 'react-native-bootsplash';
 
 import { ThemeProvider, useTheme } from './theme';
 import RootNavigator from './navigation/RootNavigator';
@@ -14,6 +15,14 @@ LogBox.ignoreLogs([
 
 const AppContent: React.FC = () => {
     const { isDark, colors } = useTheme();
+
+    useEffect(() => {
+        // Hide splash screen after a brief delay to ensure app is ready
+        const hideSplash = async () => {
+            await BootSplash.hide({ fade: true });
+        };
+        hideSplash();
+    }, []);
 
     return (
         <>

@@ -18,7 +18,12 @@
     "subtitle": "Real-time internet status across Iran",
     "mapTitle": "Regional Status",
     "ispTitle": "ISP & Mobile Networks",
-    "pullToRefresh": "Pull to refresh"
+    "pullToRefresh": "Pull to refresh",
+    "measurements": "Measurements",
+    "anomalies": "Anomalies",
+    "lastUpdated": "Updated",
+    "loadingData": "Loading data from OONI...",
+    "dataSource": "Data provided by OONI Explorer"
   },
   "status": {
     "online": "Online",
@@ -83,5 +88,9 @@
     "stayStrong": "Stay strong. Stay connected.",
     "accessMatters": "Access is a right, not a privilege.",
     "together": "Together, we document. Together, we resist."
+  },
+  "errors": {
+    "fetchFailed": "Failed to fetch data. Please try again.",
+    "networkError": "Network error. Check your connection."
   }
 }
