@@ -6,6 +6,7 @@ import BootSplash from 'react-native-bootsplash';
 
 import { ThemeProvider, useTheme } from './theme';
 import RootNavigator from './navigation/RootNavigator';
+import VideoBackground from './components/VideoBackground';
 import './i18n';
 
 // Ignore specific warnings in development
@@ -27,9 +28,11 @@ const AppContent: React.FC = () => {
     return (
         <>
             <StatusBar
-                barStyle={isDark ? 'light-content' : 'dark-content'}
-                backgroundColor={colors.background}
+                barStyle="light-content"
+                backgroundColor="transparent"
+                translucent
             />
+            <VideoBackground />
             <RootNavigator />
         </>
     );

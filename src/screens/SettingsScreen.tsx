@@ -49,7 +49,7 @@ const SettingsScreen: React.FC = () => {
     ];
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]} edges={['top']}>
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                 {/* Header */}
                 <View style={styles.header}>
@@ -64,7 +64,7 @@ const SettingsScreen: React.FC = () => {
                         {t('settings.appearance')}
                     </Text>
 
-                    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+                    <View style={[styles.card, { backgroundColor: colors.surface + 'E6' }]}>
                         <Text style={[typography.body, { color: colors.text }]}>
                             {t('settings.theme')}
                         </Text>
@@ -75,7 +75,7 @@ const SettingsScreen: React.FC = () => {
                                     style={[
                                         styles.optionButton,
                                         {
-                                            backgroundColor: mode === option.key ? colors.primary : colors.surfaceVariant,
+                                            backgroundColor: mode === option.key ? colors.primary : colors.surfaceVariant + '80',
                                             borderColor: colors.border,
                                         },
                                     ]}
@@ -94,7 +94,7 @@ const SettingsScreen: React.FC = () => {
                         </View>
                     </View>
 
-                    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+                    <View style={[styles.card, { backgroundColor: colors.surface + 'E6' }]}>
                         <Text style={[typography.body, { color: colors.text }]}>
                             {t('settings.language')}
                         </Text>
@@ -105,7 +105,7 @@ const SettingsScreen: React.FC = () => {
                                     style={[
                                         styles.optionButton,
                                         {
-                                            backgroundColor: currentLanguage === option.key ? colors.primary : colors.surfaceVariant,
+                                            backgroundColor: currentLanguage === option.key ? colors.primary : colors.surfaceVariant + '80',
                                             borderColor: colors.border,
                                         },
                                     ]}
@@ -131,7 +131,7 @@ const SettingsScreen: React.FC = () => {
                         {t('settings.privacy')}
                     </Text>
 
-                    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+                    <View style={[styles.card, { backgroundColor: colors.surface + 'E6' }]}>
                         <View style={styles.switchRow}>
                             <View style={styles.switchLabel}>
                                 <Text style={[typography.body, { color: colors.text }]}>
@@ -150,7 +150,7 @@ const SettingsScreen: React.FC = () => {
                         </View>
                     </View>
 
-                    <View style={[styles.infoCard, { backgroundColor: colors.surfaceVariant }]}>
+                    <View style={[styles.infoCard, { backgroundColor: colors.surfaceVariant + 'E6' }]}>
                         <Text style={[typography.bodySmall, { color: colors.textSecondary }]}>
                             🔒 Your privacy is our priority. We never collect GPS coordinates, personal identifiers,
                             or any data that could identify you. Only anonymous, city-level connectivity data is shared
@@ -165,7 +165,7 @@ const SettingsScreen: React.FC = () => {
                         {t('settings.about')}
                     </Text>
 
-                    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+                    <View style={[styles.card, { backgroundColor: colors.surface + 'E6' }]}>
                         <View style={styles.aboutRow}>
                             <Text style={[typography.body, { color: colors.text }]}>
                                 {t('common.appName')}
@@ -177,7 +177,7 @@ const SettingsScreen: React.FC = () => {
                     </View>
 
                     <TouchableOpacity
-                        style={[styles.card, { backgroundColor: colors.surface }]}
+                        style={[styles.card, { backgroundColor: colors.surface + 'E6' }]}
                         onPress={openGitHub}
                     >
                         <View style={styles.aboutRow}>

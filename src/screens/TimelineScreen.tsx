@@ -63,9 +63,9 @@ const TimelineScreen: React.FC = () => {
     };
 
     const chartConfig = {
-        backgroundColor: colors.surface,
-        backgroundGradientFrom: colors.surface,
-        backgroundGradientTo: colors.surface,
+        backgroundColor: 'transparent',
+        backgroundGradientFrom: 'transparent',
+        backgroundGradientTo: 'transparent',
         decimalPlaces: 0,
         color: (opacity = 1) => isDark ? `rgba(248, 250, 252, ${opacity})` : `rgba(15, 23, 42, ${opacity})`,
         labelColor: (opacity = 1) => isDark ? `rgba(148, 163, 184, ${opacity})` : `rgba(100, 116, 139, ${opacity})`,
@@ -98,7 +98,7 @@ const TimelineScreen: React.FC = () => {
     const outageEvents = data.filter(d => d.value < 50).length;
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]} edges={['top']}>
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                 {/* Header */}
                 <View style={styles.header}>

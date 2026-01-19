@@ -44,8 +44,8 @@ const RootNavigator: React.FC = () => {
             theme={{
                 dark: isDark,
                 colors: {
-                    primary: colors.primary,
-                    background: colors.background,
+                    primary: isDark ? colors.accent : colors.primary, // Better contrast in dark mode
+                    background: 'transparent', // Allow video background to show
                     card: colors.surface,
                     text: colors.text,
                     border: colors.border,
@@ -63,15 +63,20 @@ const RootNavigator: React.FC = () => {
                 screenOptions={{
                     headerShown: false,
                     tabBarStyle: {
-                        backgroundColor: colors.surface,
-                        borderTopColor: colors.border,
+                        backgroundColor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)', // Semi-transparent nav bar
+                        borderTopColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
                         borderTopWidth: 1,
                         paddingTop: 8,
                         paddingBottom: 8,
                         height: 60,
+                        position: 'absolute', // Make tab bar float
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        elevation: 0,
                     },
-                    tabBarActiveTintColor: colors.primary,
-                    tabBarInactiveTintColor: colors.textSecondary,
+                    tabBarActiveTintColor: isDark ? colors.accent : colors.primary, // Fix contrast
+                    tabBarInactiveTintColor: isDark ? '#94A3B8' : '#64748B',
                     tabBarLabelStyle: {
                         fontSize: 12,
                         fontWeight: '500',

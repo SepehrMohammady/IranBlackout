@@ -117,7 +117,7 @@ const AlertsScreen: React.FC = () => {
             style={[
                 styles.alertCard,
                 {
-                    backgroundColor: colors.surface,
+                    backgroundColor: colors.surface + 'E6', // Semi-transparent
                     borderLeftColor: getAlertColor(item.type),
                     opacity: item.read ? 0.7 : 1,
                 },
@@ -145,7 +145,7 @@ const AlertsScreen: React.FC = () => {
     );
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]} edges={['top']}>
             {/* Header */}
             <View style={styles.header}>
                 <View>
