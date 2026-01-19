@@ -6,9 +6,11 @@ import {
     RefreshControl,
     StyleSheet,
     ActivityIndicator,
+    Dimensions,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Video from 'react-native-video';
 
 import { useTheme, typography } from '../theme';
 import IranMap from '../components/IranMap';
@@ -16,6 +18,8 @@ import ISPStatusCard from '../components/ISPStatusCard';
 import { ISP, Region, ConnectivityStatus, OONIMeasurement } from '../types';
 import { ooniClient } from '../services/api';
 import { cache } from '../services/cache';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Iranian ISPs and their ASN mappings
 const ISP_MAPPING: Record<string, { nameEn: string; nameFa: string; type: 'mobile' | 'fixed' | 'both' }> = {
@@ -92,7 +96,6 @@ const HomeScreen: React.FC = () => {
 
     // Update region statuses based on ISP data
     const updateRegionStatus = (ispData: ISP[]): Region[] => {
-        // Simplified: base region status on overall ISP status
         const offlineCount = ispData.filter(i => i.status === 'offline').length;
         const limitedCount = ispData.filter(i => i.status === 'limited').length;
 
@@ -100,8 +103,6 @@ const HomeScreen: React.FC = () => {
         if (offlineCount > ispData.length / 2) overallStatus = 'offline';
         else if (limitedCount > ispData.length / 3 || offlineCount > 0) overallStatus = 'limited';
 
-        // For now, set all regions to the overall status
-        // In a real app, this would use regional measurement data
         return REGION_DATA.map(r => ({
             ...r,
             status: overallStatus,
@@ -113,7 +114,6 @@ const HomeScreen: React.FC = () => {
         try {
             setError(null);
 
-            // Try cache first if not forcing refresh
             if (!forceRefresh) {
                 const cachedData = await cache.get<{ isps: ISP[]; regions: Region[]; anomalies: number; measurements: number }>('home_data');
                 if (cachedData) {
@@ -127,7 +127,6 @@ const HomeScreen: React.FC = () => {
                 }
             }
 
-            // Fetch fresh data from OONI API
             const response = await ooniClient.getMeasurements({
                 probe_cc: 'IR',
                 limit: 200,
@@ -148,7 +147,6 @@ const HomeScreen: React.FC = () => {
 
             setLastUpdated(new Date());
 
-            // Cache the data for 5 minutes
             await cache.set('home_data', {
                 isps: ispData,
                 regions: regionData,
@@ -185,108 +183,143 @@ const HomeScreen: React.FC = () => {
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                        tintColor={colors.primary}
-                        colors={[colors.primary]}
-                    />
-                }
-            >
-                {/* Header */}
-                <View style={[styles.header, isRTL && styles.headerRTL]}>
-                    <Text style={[typography.h1, styles.appName, { color: colors.primary }]}>
-                        {t('common.appName')}
-                    </Text>
-                    <Text style={[typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-                        {t('home.subtitle')}
-                    </Text>
-                </View>
+        <View style={styles.container}>
+            {/* Background Video */}
+            <Video
+                source={require('../../assets/Background.mp4')}
+                style={styles.backgroundVideo}
+                resizeMode="cover"
+                repeat={true}
+                muted={true}
+                playInBackground={false}
+                playWhenInactive={false}
+            />
+            {/* Dark Overlay */}
+            <View style={styles.videoOverlay} />
 
-                {/* Stats Card */}
-                <View style={[styles.statsCard, { backgroundColor: colors.primary }]}>
-                    <View style={styles.statsRow}>
-                        <View style={styles.statItem}>
-                            <Text style={[typography.h2, styles.statValue]}>{measurementCount}</Text>
-                            <Text style={styles.statLabel}>{t('home.measurements')}</Text>
+            <SafeAreaView style={styles.safeArea}>
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={colors.primary}
+                            colors={[colors.primary]}
+                        />
+                    }
+                >
+                    {/* Header */}
+                    <View style={[styles.header, isRTL && styles.headerRTL]}>
+                        <Text style={[typography.h1, styles.appName, { color: colors.primary }]}>
+                            {t('common.appName')}
+                        </Text>
+                        <Text style={[typography.body, styles.subtitle, { color: colors.textSecondary }]}>
+                            {t('home.subtitle')}
+                        </Text>
+                    </View>
+
+                    {/* Stats Card */}
+                    <View style={[styles.statsCard, { backgroundColor: colors.primary + 'DD' }]}>
+                        <View style={styles.statsRow}>
+                            <View style={styles.statItem}>
+                                <Text style={[typography.h2, styles.statValue]}>{measurementCount}</Text>
+                                <Text style={styles.statLabel}>{t('home.measurements')}</Text>
+                            </View>
+                            <View style={styles.statItem}>
+                                <Text style={[typography.h2, styles.statValue, { color: anomalyCount > 0 ? '#FCA5A5' : '#A7F3D0' }]}>
+                                    {anomalyCount}
+                                </Text>
+                                <Text style={styles.statLabel}>{t('home.anomalies')}</Text>
+                            </View>
                         </View>
-                        <View style={styles.statItem}>
-                            <Text style={[typography.h2, styles.statValue, { color: anomalyCount > 0 ? '#FCA5A5' : '#A7F3D0' }]}>
-                                {anomalyCount}
+                        {lastUpdated && (
+                            <Text style={styles.lastUpdated}>
+                                {t('home.lastUpdated')}: {formatTime(lastUpdated)}
                             </Text>
-                            <Text style={styles.statLabel}>{t('home.anomalies')}</Text>
-                        </View>
+                        )}
                     </View>
-                    {lastUpdated && (
-                        <Text style={styles.lastUpdated}>
-                            {t('home.lastUpdated')}: {formatTime(lastUpdated)}
-                        </Text>
+
+                    {/* Loading / Error State */}
+                    {loading && (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color={colors.primary} />
+                            <Text style={[typography.body, { color: colors.textSecondary, marginTop: 12 }]}>
+                                {t('home.loadingData')}
+                            </Text>
+                        </View>
                     )}
-                </View>
 
-                {/* Loading / Error State */}
-                {loading && (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color={colors.primary} />
-                        <Text style={[typography.body, { color: colors.textSecondary, marginTop: 12 }]}>
-                            {t('home.loadingData')}
-                        </Text>
-                    </View>
-                )}
-
-                {error && (
-                    <View style={[styles.errorCard, { backgroundColor: colors.offline + '20' }]}>
-                        <Text style={[typography.body, { color: colors.offline }]}>{error}</Text>
-                    </View>
-                )}
-
-                {/* Iran Map */}
-                {!loading && (
-                    <View style={styles.section}>
-                        <Text style={[typography.h3, styles.sectionTitle, { color: colors.text }]}>
-                            {t('home.mapTitle')}
-                        </Text>
-                        <View style={[styles.mapContainer, { backgroundColor: colors.surface }]}>
-                            <IranMap regions={regions} />
+                    {error && (
+                        <View style={[styles.errorCard, { backgroundColor: colors.offline + '20' }]}>
+                            <Text style={[typography.body, { color: colors.offline }]}>{error}</Text>
                         </View>
-                    </View>
-                )}
+                    )}
 
-                {/* ISP Status List */}
-                {!loading && isps.length > 0 && (
-                    <View style={styles.section}>
-                        <Text style={[typography.h3, styles.sectionTitle, { color: colors.text }]}>
-                            {t('home.ispTitle')}
-                        </Text>
-                        <View style={styles.ispList}>
-                            {isps.map((isp) => (
-                                <ISPStatusCard key={isp.id} isp={isp} isFarsi={isFarsi} />
-                            ))}
+                    {/* Iran Map */}
+                    {!loading && (
+                        <View style={styles.section}>
+                            <Text style={[typography.h3, styles.sectionTitle, { color: colors.text }]}>
+                                {t('home.mapTitle')}
+                            </Text>
+                            <View style={[styles.mapContainer, { backgroundColor: colors.surface + 'CC' }]}>
+                                <IranMap regions={regions} />
+                            </View>
                         </View>
-                    </View>
-                )}
+                    )}
 
-                {/* Data Source Info */}
-                <View style={styles.footer}>
-                    <Text style={[typography.caption, { color: colors.textSecondary, textAlign: 'center' }]}>
-                        {t('home.dataSource')}
-                    </Text>
-                    <Text style={[typography.caption, { color: colors.textSecondary, textAlign: 'center', marginTop: 4 }]}>
-                        {t('messages.together')}
-                    </Text>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+                    {/* ISP Status List */}
+                    {!loading && isps.length > 0 && (
+                        <View style={styles.section}>
+                            <Text style={[typography.h3, styles.sectionTitle, { color: colors.text }]}>
+                                {t('home.ispTitle')}
+                            </Text>
+                            <View style={styles.ispList}>
+                                {isps.map((isp) => (
+                                    <ISPStatusCard key={isp.id} isp={isp} isFarsi={isFarsi} />
+                                ))}
+                            </View>
+                        </View>
+                    )}
+
+                    {/* Data Source Info */}
+                    <View style={styles.footer}>
+                        <Text style={[typography.caption, { color: colors.textSecondary, textAlign: 'center' }]}>
+                            {t('home.dataSource')}
+                        </Text>
+                        <Text style={[typography.caption, { color: colors.textSecondary, textAlign: 'center', marginTop: 4 }]}>
+                            {t('messages.together')}
+                        </Text>
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
+    },
+    backgroundVideo: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        width: SCREEN_WIDTH,
+        height: SCREEN_HEIGHT,
+    },
+    videoOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    },
+    safeArea: {
         flex: 1,
     },
     scrollView: {

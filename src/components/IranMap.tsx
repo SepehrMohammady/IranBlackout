@@ -99,6 +99,10 @@ const IranMap: React.FC<IranMapProps> = ({ regions, onRegionPress }) => {
                     <View style={[styles.legendDot, { backgroundColor: colors.offline }]} />
                     <Text style={[styles.legendText, { color: colors.textSecondary }]}>Offline</Text>
                 </View>
+                <View style={styles.legendItem}>
+                    <View style={[styles.legendDot, { backgroundColor: colors.unknown }]} />
+                    <Text style={[styles.legendText, { color: colors.textSecondary }]}>Unknown</Text>
+                </View>
             </View>
         </View>
     );
