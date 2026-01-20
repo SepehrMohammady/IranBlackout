@@ -152,9 +152,7 @@ const SettingsScreen: React.FC = () => {
 
                     <View style={[styles.infoCard, { backgroundColor: colors.surfaceVariant + 'E6' }]}>
                         <Text style={[typography.bodySmall, { color: colors.textSecondary }]}>
-                            🔒 Your privacy is our priority. We never collect GPS coordinates, personal identifiers,
-                            or any data that could identify you. Only anonymous, city-level connectivity data is shared
-                            to help document internet disruptions.
+                            🔒 {t('settings.privacyPolicy')}
                         </Text>
                     </View>
                 </View>
@@ -194,10 +192,10 @@ const SettingsScreen: React.FC = () => {
                 {/* Footer */}
                 <View style={styles.footer}>
                     <Text style={[typography.caption, { color: colors.textSecondary, textAlign: 'center' }]}>
-                        {t('messages.accessMatters')}
+                        {t('settings.accessRights')}
                     </Text>
                     <Text style={[typography.caption, { color: colors.textSecondary, textAlign: 'center', marginTop: 8 }]}>
-                        Made with ❤️ for Iran
+                        {t('settings.madeWith')}
                     </Text>
                 </View>
             </ScrollView>
