@@ -8,6 +8,7 @@ import { ThemeProvider, useTheme } from './theme';
 import RootNavigator from './navigation/RootNavigator';
 import VideoBackground from './components/VideoBackground';
 import './i18n';
+import { initializeLanguage } from './i18n';
 
 // Ignore specific warnings in development
 LogBox.ignoreLogs([
@@ -18,6 +19,9 @@ const AppContent: React.FC = () => {
     const { isDark, colors } = useTheme();
 
     useEffect(() => {
+        // Initialize language from saved preference (fixes RTL restart bug)
+        initializeLanguage();
+
         // Hide splash screen after a brief delay to ensure app is ready
         const hideSplash = async () => {
             await BootSplash.hide({ fade: true });
