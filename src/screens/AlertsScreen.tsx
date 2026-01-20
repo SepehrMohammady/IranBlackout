@@ -223,7 +223,7 @@ const AlertsScreen: React.FC = () => {
             <View style={styles.attribution}>
                 <Icon name="database" size={14} color={colors.textSecondary} />
                 <Text style={[typography.caption, { color: colors.textSecondary, marginLeft: 4 }]}>
-                    Data from IODA (Georgia Tech)
+                    {t('alerts.dataSource')}
                 </Text>
             </View>
         </SafeAreaView>

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { useTheme, typography } from '../theme';
+import { useTheme, typography, toPersianNumber } from '../theme';
 import { ISP, ConnectivityStatus } from '../types';
 import StatusIndicator from './StatusIndicator';
 
@@ -11,6 +12,7 @@ interface ISPStatusCardProps {
 }
 
 const ISPStatusCard: React.FC<ISPStatusCardProps> = ({ isp, isFarsi = false }) => {
+    const { t } = useTranslation();
     const { colors, isRTL } = useTheme();
 
     const getTypeLabel = (type: ISP['type']): string => {
@@ -28,11 +30,15 @@ const ISPStatusCard: React.FC<ISPStatusCardProps> = ({ isp, isFarsi = false }) =
         const diffMs = now.getTime() - date.getTime();
         const diffMins = Math.floor(diffMs / 60000);
 
-        if (diffMins < 1) return 'Just now';
-        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffMins < 1) return t('common.justNow');
+        if (diffMins < 60) {
+            return t('common.minutesAgo', { count: diffMins });
+        }
         const diffHours = Math.floor(diffMins / 60);
-        if (diffHours < 24) return `${diffHours}h ago`;
-        return date.toLocaleDateString();
+        if (diffHours < 24) {
+            return t('common.hoursAgo', { count: diffHours });
+        }
+        return date.toLocaleDateString(isFarsi ? 'fa-IR' : 'en-US');
     };
 
     return (

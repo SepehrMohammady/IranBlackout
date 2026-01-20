@@ -292,7 +292,7 @@ const HomeScreen: React.FC = () => {
                     </Text>
                     <View style={styles.ispList}>
                         {isps.map((isp) => (
-                            <ISPStatusCard key={isp.id} isp={isp} />
+                            <ISPStatusCard key={isp.id} isp={isp} isFarsi={isFarsi} />
                         ))}
                     </View>
                 </View>
