@@ -157,14 +157,14 @@ const AlertsScreen: React.FC = () => {
                 onPress={() => markAsRead(item.id)}
             >
                 <View style={styles.alertHeader}>
-                    <View style={styles.alertTitleRow}>
+                    <View style={[styles.alertTitleRow, { marginRight: 8 }]}>
                         <Icon
                             name={getAlertIcon(item.type)}
                             size={20}
                             color={getAlertColor(item.type)}
                             style={styles.alertIcon}
                         />
-                        <Text style={[typography.h4, { color: colors.text, flex: 1 }]} numberOfLines={1}>
+                        <Text style={[typography.h4, { color: colors.text, flex: 1 }]} numberOfLines={2}>
                             {title}
                         </Text>
                         {!item.read && (
