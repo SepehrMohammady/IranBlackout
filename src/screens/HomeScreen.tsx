@@ -15,7 +15,7 @@ import { useTheme, typography } from '../theme';
 import IranMap from '../components/IranMap';
 import ISPStatusCard from '../components/ISPStatusCard';
 import { ISP, Region, ConnectivityStatus, OONIMeasurement } from '../types';
-import { ooniClient } from '../services/api';
+import { ooniClient, cloudflareClient } from '../services/api';
 import { cache } from '../services/cache';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -52,6 +52,7 @@ const HomeScreen: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [anomalyCount, setAnomalyCount] = useState(0);
     const [measurementCount, setMeasurementCount] = useState(0);
+    const [trafficChange, setTrafficChange] = useState<number | null>(null); // Cloudflare traffic change %
 
     const isFarsi = i18n.language === 'fa';
 
@@ -128,6 +129,23 @@ const HomeScreen: React.FC = () => {
                 }
             }
 
+            // Fetch Cloudflare traffic data first to detect major outages
+            let majorOutage = false;
+            try {
+                const cfData = await cloudflareClient.getTrafficAnomalies('IR');
+                if (cfData.length > 0) {
+                    // Get the most recent traffic change
+                    const latestChange = cfData[0].trafficChange;
+                    setTrafficChange(latestChange);
+                    // If traffic dropped by 50% or more, it's a major outage
+                    if (latestChange <= -50) {
+                        majorOutage = true;
+                    }
+                }
+            } catch (cfError) {
+                console.warn('Cloudflare data unavailable:', cfError);
+            }
+
             const response = await ooniClient.getMeasurements({
                 probe_cc: 'IR',
                 limit: 200,
@@ -140,10 +158,25 @@ const HomeScreen: React.FC = () => {
             setMeasurementCount(measurements.length);
             setAnomalyCount(anomalies.length);
 
-            const ispData = calculateISPStatus(measurements);
+            let ispData = calculateISPStatus(measurements);
+
+            // Override all statuses if major outage detected via Cloudflare
+            if (majorOutage) {
+                ispData = ispData.map(isp => ({
+                    ...isp,
+                    status: 'offline' as ConnectivityStatus,
+                }));
+            }
             setIsps(ispData);
 
-            const regionData = updateRegionStatus(ispData);
+            let regionData = updateRegionStatus(ispData);
+            // Override regions too if major outage
+            if (majorOutage) {
+                regionData = regionData.map(r => ({
+                    ...r,
+                    status: 'offline' as ConnectivityStatus,
+                }));
+            }
             setRegions(regionData);
 
             setLastUpdated(new Date());

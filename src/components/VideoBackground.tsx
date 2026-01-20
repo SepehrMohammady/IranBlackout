@@ -15,6 +15,9 @@ const VideoBackground: React.FC = () => {
                 muted
                 playInBackground={false}
                 playWhenInactive={false}
+                mixWithOthers="mix" // Allow other audio to play simultaneously
+                ignoreSilentSwitch="ignore" // iOS: ignore silent switch
+                disableFocus={true} // Don't take audio focus
             />
             <View style={styles.overlay} />
         </View>
