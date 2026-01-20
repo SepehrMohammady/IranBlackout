@@ -70,10 +70,6 @@
     "majorOutage": "Major Outage",
     "connectivityIssues": "Connectivity Issues",
     "detectedVia": "Detected via {{source}}",
-    "majorOutageMsg": "Significant connectivity disruption detected. Multiple data sources confirm the outage.",
-    "partialOutageMsg": "Partial connectivity issues detected. Some users may experience slow speeds or intermittent connections.",
-    "restorationMsg": "Internet connectivity has been restored after disruption.",
-    "networkUpdateMsg": "Network monitoring data indicates connectivity changes in this region.",
     "severity": "Severity: {{level}}",
     "affecting": "Affecting {{region}}",
     "dataSource": "Data from IODA (Georgia Tech)"

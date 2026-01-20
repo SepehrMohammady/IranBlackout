@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useTranslation } from 'react-i18next';
 
 import { useTheme, typography } from '../theme';
 import { ISP, ConnectivityStatus } from '../types';
@@ -12,7 +11,6 @@ interface ISPStatusCardProps {
 }
 
 const ISPStatusCard: React.FC<ISPStatusCardProps> = ({ isp, isFarsi = false }) => {
-    const { t } = useTranslation();
     const { colors, isRTL } = useTheme();
 
     const getTypeLabel = (type: ISP['type']): string => {
@@ -29,14 +27,12 @@ const ISPStatusCard: React.FC<ISPStatusCardProps> = ({ isp, isFarsi = false }) =
         const now = new Date();
         const diffMs = now.getTime() - date.getTime();
         const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMins / 60);
-        const diffDays = Math.floor(diffHours / 24);
 
-        if (diffMins < 1) return t('common.justNow');
-        if (diffMins < 60) return t('common.minutesAgo', { count: diffMins });
-        if (diffHours < 24) return t('common.hoursAgo', { count: diffHours });
-        if (diffDays === 1) return t('common.yesterday');
-        return t('common.daysAgo', { count: diffDays });
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours}h ago`;
+        return date.toLocaleDateString();
     };
 
     return (

@@ -9,7 +9,7 @@ interface IranMapProps {
   onRegionPress?: (region: Region) => void;
 }
 
-export const provinces: Record<string, { path: string; name: string }> = {
+const provinces: Record<string, { path: string; name: string }> = {
   "IR.KB": {
     "path": "M405.2,476.1L402.2,476.6L400.2,478.7L397.9,480.0L390.9,479.3L371.4,463.8L367.5,463.8L358.9,460.5L355.3,458.5L352.9,462.6L348.1,467.7L344.7,469.2L341.8,473.7L342.3,476.9L345.6,484.6L346.0,486.9L345.7,491.1L346.2,492.4L354.0,491.4L360.4,497.4L365.1,499.8L368.0,501.8L369.2,504.6L367.4,511.1L368.2,513.9L369.9,515.6L371.3,519.2L373.2,527.8L379.0,529.8L380.9,531.1L381.8,531.9L381.8,531.7L386.3,530.6L394.1,531.0L396.1,530.7L407.5,523.3L408.1,521.2L407.8,518.4L404.0,508.7L402.6,504.1L403.2,503.3L407.1,504.2L412.8,506.9L417.1,509.5L422.2,510.8L426.8,508.8L427.6,504.4L425.2,497.6L424.1,496.6L417.0,491.9L411.2,486.5L407.6,479.8L406.8,476.2L405.2,476.1Z ",
     "name": "Kohgiluyeh and Buyer Ahmad"
@@ -152,15 +152,8 @@ const IranMap: React.FC<IranMapProps> = ({ regions }) => {
 
   const regionStatusMap: Record<string, ConnectivityStatus> = {};
   regions.forEach(region => {
-    // Try to match by ID directly (e.g. IR.TH)
-    if (provinces[region.id]) {
-      regionStatusMap[region.id] = region.status;
-      return;
-    }
-
-    // Fallback to legacy mapping
     const codeMap: Record<string, string> = {
-      'tehran': 'IR.TH', 'isfahan': 'IR.ES', 'shiraz': 'IR.FA', 'mashhad': 'IR.CM', // mashhad map is tricky, IR.KV/IR.RZ?
+      'tehran': 'IR.TH', 'isfahan': 'IR.ES', 'shiraz': 'IR.FA', 'mashhad': 'IR.KV',
       'tabriz': 'IR.EA', 'karaj': 'IR.AL', 'qom': 'IR.QM', 'ahvaz': 'IR.KZ',
       'kerman': 'IR.KE', 'urmia': 'IR.WA'
     };

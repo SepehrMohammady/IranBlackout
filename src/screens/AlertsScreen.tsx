@@ -109,78 +109,42 @@ const AlertsScreen: React.FC = () => {
 
     const unreadCount = alerts.filter(a => !a.read).length;
 
-    const renderAlert = ({ item }: { item: Alert }) => {
-        // Parse title and message if they are JSON strings
-        let title = item.title;
-        let message = item.message;
-
-        try {
-            const titleObj = JSON.parse(item.title);
-            if (titleObj && titleObj.type) {
-                const entityName = titleObj.entityName || 'Iran';
-                switch (titleObj.type) {
-                    case 'outage':
-                        title = `${t('alerts.majorOutage')}: ${entityName}`;
-                        break;
-                    case 'partial':
-                        title = `${t('alerts.connectivityIssues')}: ${entityName}`;
-                        break;
-                    case 'restoration':
-                        title = `${t('alerts.connectivityRestored')}: ${entityName}`;
-                        break;
-                    default:
-                        title = `${t('alerts.networkUpdate')}: ${entityName}`;
-                }
-            }
-        } catch (e) {
-            // Not JSON, use as is
-        }
-
-        try {
-            const msgObj = JSON.parse(item.message);
-            if (msgObj && msgObj.key) {
-                message = t(`alerts.${msgObj.key}`);
-            }
-        } catch (e) {
-            // Not JSON, use as is
-        }
-
-        return (
-            <TouchableOpacity
-                style={[
-                    styles.alertCard,
-                    {
-                        backgroundColor: item.read ? colors.surface + 'E6' : colors.surfaceVariant + 'E6',
-                        borderColor: getAlertColor(item.type),
-                    },
-                ]}
-                onPress={() => markAsRead(item.id)}
-            >
-                <View style={styles.alertHeader}>
-                    <View style={[styles.alertTitleRow, { marginRight: 8 }]}>
-                        <Icon
-                            name={getAlertIcon(item.type)}
-                            size={20}
-                            color={getAlertColor(item.type)}
-                            style={styles.alertIcon}
-                        />
-                        <Text style={[typography.h4, { color: colors.text, flex: 1 }]} numberOfLines={2}>
-                            {title}
-                        </Text>
-                        {!item.read && (
-                            <View style={[styles.unreadDot, { backgroundColor: colors.accent }]} />
-                        )}
-                    </View>
-                    <Text style={[typography.caption, { color: colors.textSecondary }]}>
-                        {formatTime(item.timestamp)}
+    const renderAlert = ({ item }: { item: Alert }) => (
+        <TouchableOpacity
+            style={[
+                styles.alertCard,
+                {
+                    backgroundColor: colors.surface + 'E6',
+                    borderLeftColor: getAlertColor(item.type),
+                    opacity: item.read ? 0.7 : 1,
+                },
+            ]}
+            onPress={() => markAsRead(item.id)}
+        >
+            <View style={styles.alertHeader}>
+                <View style={styles.alertTitleRow}>
+                    <Icon
+                        name={getAlertIcon(item.type)}
+                        size={20}
+                        color={getAlertColor(item.type)}
+                        style={styles.alertIcon}
+                    />
+                    <Text style={[typography.h4, { color: colors.text, flex: 1 }]} numberOfLines={1}>
+                        {item.title}
                     </Text>
+                    {!item.read && (
+                        <View style={[styles.unreadDot, { backgroundColor: colors.accent }]} />
+                    )}
                 </View>
-                <Text style={[typography.body, styles.alertMessage, { color: colors.textSecondary }]} numberOfLines={3}>
-                    {message}
+                <Text style={[typography.caption, { color: colors.textSecondary }]}>
+                    {formatTime(item.timestamp)}
                 </Text>
-            </TouchableOpacity>
-        );
-    };
+            </View>
+            <Text style={[typography.body, styles.alertMessage, { color: colors.textSecondary }]} numberOfLines={3}>
+                {item.message}
+            </Text>
+        </TouchableOpacity>
+    );
 
     if (loading) {
         return (
