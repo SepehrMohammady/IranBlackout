@@ -87,42 +87,42 @@ const RootNavigator: React.FC = () => {
                 <Tab.Screen
                     name="Home"
                     component={HomeScreen}
-                    options={{
+                    options={() => ({
                         tabBarLabel: t('tabs.home'),
                         tabBarIcon: ({ focused, color }) => (
                             <TabIcon name="home" focused={focused} color={color} />
                         ),
-                    }}
+                    })}
                 />
                 <Tab.Screen
                     name="Timeline"
                     component={TimelineScreen}
-                    options={{
+                    options={() => ({
                         tabBarLabel: t('tabs.timeline'),
                         tabBarIcon: ({ focused, color }) => (
                             <TabIcon name="timeline" focused={focused} color={color} />
                         ),
-                    }}
+                    })}
                 />
                 <Tab.Screen
                     name="Alerts"
                     component={AlertsScreen}
-                    options={{
+                    options={() => ({
                         tabBarLabel: t('tabs.alerts'),
                         tabBarIcon: ({ focused, color }) => (
                             <TabIcon name="alerts" focused={focused} color={color} />
                         ),
-                    }}
+                    })}
                 />
                 <Tab.Screen
                     name="Settings"
                     component={SettingsScreen}
-                    options={{
+                    options={() => ({
                         tabBarLabel: t('tabs.settings'),
                         tabBarIcon: ({ focused, color }) => (
                             <TabIcon name="settings" focused={focused} color={color} />
                         ),
-                    }}
+                    })}
                 />
             </Tab.Navigator>
         </NavigationContainer>

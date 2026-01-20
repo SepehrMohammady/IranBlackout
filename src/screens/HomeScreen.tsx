@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme, typography } from '../theme';
+import { provinces } from '../components/IranMap';
 import IranMap from '../components/IranMap';
 import ISPStatusCard from '../components/ISPStatusCard';
 import { ISP, Region, ConnectivityStatus, OONIMeasurement } from '../types';
@@ -43,14 +44,14 @@ const ISP_MAPPING: Record<string, { nameEn: string; nameFa: string; type: 'mobil
     'AS49666': { nameEn: 'Iran Telecom', nameFa: 'مخابرات ایران', type: 'both' },
 };
 
-// Region mappings for Iran provinces
-const REGION_DATA: Region[] = [
-    { id: 'tehran', nameEn: 'Tehran', nameFa: 'تهران', status: 'unknown', lastUpdated: '' },
-    { id: 'isfahan', nameEn: 'Isfahan', nameFa: 'اصفهان', status: 'unknown', lastUpdated: '' },
-    { id: 'shiraz', nameEn: 'Shiraz', nameFa: 'شیراز', status: 'unknown', lastUpdated: '' },
-    { id: 'mashhad', nameEn: 'Mashhad', nameFa: 'مشهد', status: 'unknown', lastUpdated: '' },
-    { id: 'tabriz', nameEn: 'Tabriz', nameFa: 'تبریز', status: 'unknown', lastUpdated: '' },
-];
+// Generate regions from map data
+const REGION_DATA: Region[] = Object.entries(provinces).map(([id, data]) => ({
+    id,
+    nameEn: data.name,
+    nameFa: data.name, // Will be replaced by translation if available
+    status: 'unknown',
+    lastUpdated: ''
+}));
 
 const HomeScreen: React.FC = () => {
     const { t, i18n } = useTranslation();
@@ -225,6 +226,13 @@ const HomeScreen: React.FC = () => {
         });
     };
 
+    const overall = (() => {
+        if (regions.some(r => r.status === 'offline')) return { text: t('status.disrupted'), color: colors.offline };
+        if (regions.some(r => r.status === 'limited')) return { text: t('status.limited'), color: colors.limited };
+        if (trafficChange && trafficChange < -0.3) return { text: t('status.disrupted'), color: colors.offline };
+        return { text: t('status.normal'), color: colors.online };
+    })();
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]} edges={['top']}>
             <ScrollView
@@ -244,25 +252,26 @@ const HomeScreen: React.FC = () => {
                     </Text>
                 </View>
 
-                {/* Network Status Cards */}
-                <View style={[styles.statsCard, { backgroundColor: 'rgba(30, 41, 59, 0.7)' }]}>
-                    <View style={styles.statsRow}>
-                        <View style={styles.statItem}>
-                            <Text style={styles.statValue}>{measurementCount}</Text>
-                            <Text style={styles.statLabel}>{t('home.measurements')}</Text>
-                        </View>
-                        <View style={styles.statItem}>
-                            <Text style={[styles.statValue, { color: anomalyCount > 0 ? colors.offline : colors.online }]}>
-                                {anomalyCount}
-                            </Text>
-                            <Text style={styles.statLabel}>{t('home.anomalies')}</Text>
-                        </View>
-                    </View>
-                    {lastUpdated && (
-                        <Text style={[styles.lastUpdated, { marginTop: 12 }]}>
-                            {t('home.lastUpdated', { time: formatTime(lastUpdated) })}
+                {/* Compact Stats Bar */}
+                <View style={[styles.compactStats, { backgroundColor: colors.surface + 'CC', borderColor: colors.border }]}>
+                    <View style={styles.compactStatItem}>
+                        <View style={[styles.statusDot, { backgroundColor: overall.color }]} />
+                        <Text style={[typography.bodySmall, { color: colors.text }]}>
+                            {t('home.statusLine', { status: overall.text, time: '' }).split('-')[0]}
                         </Text>
-                    )}
+                    </View>
+                    <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                    <View style={styles.compactStatItem}>
+                        <Text style={[typography.bodySmall, { color: colors.textSecondary }]}>
+                            {t('home.measurements')}: <Text style={{ color: colors.text, fontWeight: '600' }}>{measurementCount}</Text>
+                        </Text>
+                    </View>
+                    <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                    <View style={styles.compactStatItem}>
+                        <Text style={[typography.bodySmall, { color: colors.textSecondary }]}>
+                            {t('home.anomalies')}: <Text style={{ color: colors.offline, fontWeight: '600' }}>{anomalyCount}</Text>
+                        </Text>
+                    </View>
                 </View>
 
                 {error && (
@@ -388,6 +397,30 @@ const styles = StyleSheet.create({
     footer: {
         paddingVertical: 24,
         paddingHorizontal: 16,
+    },
+    compactStats: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 12,
+        borderRadius: 12,
+        marginBottom: 24,
+        borderWidth: 1,
+    },
+    compactStatItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    statusDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+    },
+    divider: {
+        width: 1,
+        height: 16,
+        opacity: 0.2,
     },
 });
 

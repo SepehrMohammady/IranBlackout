@@ -66,6 +66,8 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
                             height: dotSize * 2,
                             borderRadius: dotSize,
                             backgroundColor: statusColor,
+                            left: -dotSize / 2,
+                            top: -dotSize / 2,
                         }
                     ]}
                 />
