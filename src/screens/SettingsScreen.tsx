@@ -11,7 +11,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useTheme, typography, ThemeMode } from '../theme';
+import { useTheme, typography, ThemeMode, toPersianNumber } from '../theme';
 import { setLanguage } from '../i18n';
 
 // Import version from package.json
@@ -24,6 +24,8 @@ const SettingsScreen: React.FC = () => {
     const [telemetryEnabled, setTelemetryEnabled] = useState(true);
 
     const currentLanguage = i18n.language;
+    const isFarsi = currentLanguage === 'fa';
+    const displayVersion = isFarsi ? toPersianNumber(APP_VERSION) : APP_VERSION;
 
     const handleLanguageChange = async (lang: string) => {
         await setLanguage(lang);
@@ -169,7 +171,7 @@ const SettingsScreen: React.FC = () => {
                                 {t('common.appName')}
                             </Text>
                             <Text style={[typography.body, { color: colors.textSecondary }]}>
-                                {t('settings.version')} {APP_VERSION}
+                                {t('settings.version')} {displayVersion}
                             </Text>
                         </View>
                     </View>

@@ -191,28 +191,23 @@ class IODAClient {
         const entityName = alert.entity?.name || 'Iran';
         // Simplify entity name (remove "Islamic Republic Of" etc.)
         const cleanName = entityName.replace(/\s*\(Islamic Republic Of\)/i, '').trim();
-        switch (type) {
-            case 'outage':
-                return `Major Outage: ${cleanName}`;
-            case 'partial':
-                return `Connectivity Issues: ${cleanName}`;
-            case 'restoration':
-                return `Connectivity Restored: ${cleanName}`;
-            default:
-                return `Network Update: ${cleanName}`;
-        }
+        // Return JSON string to be parsed by component
+        return JSON.stringify({ type, entityName: cleanName });
     }
 
     private generateAlertMessage(alert: any): string {
         const score = alert.score || 0;
+        let msgKey = '';
         if (score >= 80) {
-            return 'Significant connectivity disruption detected. Multiple data sources confirm the outage.';
+            msgKey = 'majorOutageMsg';
         } else if (score >= 50) {
-            return 'Partial connectivity issues detected. Some users may experience slow speeds or intermittent connections.';
+            msgKey = 'partialOutageMsg';
         } else if (alert.direction === 'up') {
-            return 'Internet connectivity has been restored after disruption.';
+            msgKey = 'restorationMsg';
+        } else {
+            msgKey = 'networkUpdateMsg';
         }
-        return 'Network monitoring data indicates connectivity changes in this region.';
+        return JSON.stringify({ key: msgKey, score });
     }
 
     private parseSignalsResponse(data: any, datasource: string): IODASignalData[] {

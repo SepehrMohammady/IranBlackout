@@ -70,6 +70,10 @@
         "majorOutage": "قطعی کامل",
         "connectivityIssues": "مشکل اتصال",
         "detectedVia": "شناسایی شده توسط {{source}}",
+        "majorOutageMsg": "اختلال قابل توجه در اتصال شناسایی شد. منابع متعدد داده این قطعی را تأیید می‌کنند.",
+        "partialOutageMsg": "مشکلات جزئی در اتصال شناسایی شد. برخی کاربران ممکن است سرعت پایین یا قطع و وصل شدن را تجربه کنند.",
+        "restorationMsg": "اتصال اینترنت پس از اختلال برقرار شد.",
+        "networkUpdateMsg": "داده‌های نظارت شبکه تغییراتی در اتصال این منطقه نشان می‌دهند.",
         "severity": "شدت: {{level}}",
         "affecting": "تأثیر بر {{region}}",
         "dataSource": "داده از IODA (Georgia Tech)"
