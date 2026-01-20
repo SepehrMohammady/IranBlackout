@@ -84,13 +84,15 @@ const AlertsScreen: React.FC = () => {
         const date = new Date(timestamp);
         const now = new Date();
         const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
 
-        if (diffHours < 1) return t('alerts.justNow');
-        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffMins < 1) return t('alerts.justNow');
+        if (diffMins < 60) return t('common.minutesAgo', { count: diffMins });
+        if (diffHours < 24) return t('common.hoursAgo', { count: diffHours });
         if (diffDays === 1) return t('alerts.yesterday');
-        return `${diffDays} days ago`;
+        return t('common.daysAgo', { count: diffDays });
     };
 
     const markAsRead = (id: string) => {

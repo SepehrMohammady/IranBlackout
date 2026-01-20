@@ -5,7 +5,12 @@
     "error": "An error occurred",
     "retry": "Retry",
     "offline": "Offline",
-    "lastUpdated": "Last updated: {{time}}"
+    "lastUpdated": "Last updated: {{time}}",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago"
   },
   "tabs": {
     "home": "Home",
@@ -16,20 +21,23 @@
   "home": {
     "title": "Connectivity Dashboard",
     "subtitle": "Real-time internet status across Iran",
+    "statusLine": "Status: {{status}} - Updated: {{time}}",
     "mapTitle": "Regional Status",
     "ispTitle": "ISP & Mobile Networks",
     "pullToRefresh": "Pull to refresh",
     "measurements": "Measurements",
     "anomalies": "Anomalies",
     "lastUpdated": "Updated",
-    "loadingData": "Loading data from OONI...",
-    "dataSource": "Data provided by OONI Explorer"
+    "loadingData": "Loading data...",
+    "dataSource": "Data from OONI, Cloudflare Radar & IODA"
   },
   "status": {
     "online": "Online",
     "limited": "Limited",
     "offline": "Offline",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "normal": "Normal",
+    "disrupted": "Disrupted"
   },
   "timeline": {
     "title": "Outage History",
@@ -38,7 +46,13 @@
     "filterByISP": "Filter by ISP",
     "last24h": "Last 24 hours",
     "last7d": "Last 7 days",
-    "last30d": "Last 30 days"
+    "last30d": "Last 30 days",
+    "avgConnectivity": "Avg. Connectivity",
+    "lowestPoint": "Lowest Point",
+    "disruptions": "Disruptions",
+    "connectivityOverTime": "Connectivity Over Time",
+    "loading": "Loading timeline data...",
+    "dataAttribution": "Data aggregated from IODA (Georgia Tech), OONI, and Cloudflare Radar. All times shown in local timezone."
   },
   "alerts": {
     "title": "Alerts",
@@ -51,7 +65,14 @@
     "outageDetected": "Outage Detected",
     "connectivityRestored": "Connectivity Restored",
     "partialOutage": "Partial Outage",
-    "markAllRead": "Mark all as read"
+    "networkUpdate": "Network Update",
+    "markAllRead": "Mark all as read",
+    "majorOutage": "Major Outage",
+    "connectivityIssues": "Connectivity Issues",
+    "detectedVia": "Detected via {{source}}",
+    "severity": "Severity: {{level}}",
+    "affecting": "Affecting {{region}}",
+    "dataSource": "Data from IODA (Georgia Tech)"
   },
   "settings": {
     "title": "Settings",
@@ -64,9 +85,12 @@
     "privacy": "Privacy",
     "telemetry": "Anonymous Telemetry",
     "telemetryDesc": "Help improve coverage by sharing anonymous connectivity data",
+    "privacyPolicy": "Your privacy is our priority. We never collect GPS coordinates, personal identifiers, or any data that could identify you. Only anonymous, city-level connectivity data is shared to help document internet disruptions.",
     "about": "About",
     "version": "Version",
-    "openSource": "Open Source"
+    "openSource": "Open Source",
+    "madeWith": "Made with ❤️ for Iran",
+    "accessRights": "Access is a right, not a privilege."
   },
   "regions": {
     "tehran": "Tehran",

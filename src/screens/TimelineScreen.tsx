@@ -170,7 +170,7 @@ const TimelineScreen: React.FC = () => {
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={colors.primary} />
                     <Text style={[typography.body, { color: colors.textSecondary, marginTop: 16 }]}>
-                        Loading timeline data...
+                        {t('timeline.loading')}
                     </Text>
                 </View>
             </SafeAreaView>
@@ -219,7 +219,7 @@ const TimelineScreen: React.FC = () => {
                             {formatNumber(avgConnectivity)}%
                         </Text>
                         <Text style={[typography.caption, { color: colors.textSecondary }]}>
-                            Avg. Connectivity
+                            {t('timeline.avgConnectivity')}
                         </Text>
                     </View>
                     <View style={[styles.statCard, { backgroundColor: colors.surface + 'CC' }]}>
@@ -227,7 +227,7 @@ const TimelineScreen: React.FC = () => {
                             {formatNumber(minConnectivity)}%
                         </Text>
                         <Text style={[typography.caption, { color: colors.textSecondary }]}>
-                            Lowest Point
+                            {t('timeline.lowestPoint')}
                         </Text>
                     </View>
                     <View style={[styles.statCard, { backgroundColor: colors.surface + 'CC' }]}>
@@ -235,7 +235,7 @@ const TimelineScreen: React.FC = () => {
                             {formatNumber(outageEvents)}
                         </Text>
                         <Text style={[typography.caption, { color: colors.textSecondary }]}>
-                            Disruptions
+                            {t('timeline.disruptions')}
                         </Text>
                     </View>
                 </View>
@@ -244,7 +244,7 @@ const TimelineScreen: React.FC = () => {
                 {chartData && data.length > 1 ? (
                     <View style={[styles.chartContainer, { backgroundColor: colors.surface + 'CC' }]}>
                         <Text style={[typography.h4, { color: colors.text, marginBottom: 16 }]}>
-                            Connectivity Over Time
+                            {t('timeline.connectivityOverTime')}
                         </Text>
                         <LineChart
                             data={chartData}
@@ -272,7 +272,7 @@ const TimelineScreen: React.FC = () => {
                 <View style={[styles.infoCard, { backgroundColor: colors.surface + 'CC' }]}>
                     <Icon name="chart-bar" size={18} color={colors.primary} />
                     <Text style={[typography.bodySmall, { color: colors.textSecondary, flex: 1, marginLeft: 8 }]}>
-                        Data aggregated from IODA (Georgia Tech), OONI, and Cloudflare Radar. All times shown in local timezone.
+                        {t('timeline.dataAttribution')}
                     </Text>
                 </View>
             </ScrollView>

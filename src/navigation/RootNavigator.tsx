@@ -2,7 +2,8 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { useTheme } from '../theme';
 import HomeScreen from '../screens/HomeScreen';
@@ -19,21 +20,21 @@ export type RootTabParamList = {
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
-// Simple icon components (flat design)
+// Material Design icons - outline when inactive, filled when active
 const TabIcon: React.FC<{ name: string; focused: boolean; color: string }> = ({ name, focused, color }) => {
-    const icons: Record<string, string> = {
-        home: '🏠',
-        timeline: '📊',
-        alerts: '🔔',
-        settings: '⚙️',
+    const icons: Record<string, { active: string; inactive: string }> = {
+        home: { active: 'home', inactive: 'home-outline' },
+        timeline: { active: 'chart-bar', inactive: 'chart-bar' },
+        alerts: { active: 'bell', inactive: 'bell-outline' },
+        settings: { active: 'cog', inactive: 'cog-outline' },
     };
 
-    return (
-        <Text style={[styles.icon, { opacity: focused ? 1 : 0.6 }]}>
-            {icons[name] || '●'}
-        </Text>
-    );
+    const iconSet = icons[name] || { active: 'circle', inactive: 'circle-outline' };
+    const iconName = focused ? iconSet.active : iconSet.inactive;
+
+    return <Icon name={iconName} size={24} color={color} />;
 };
+
 
 const RootNavigator: React.FC = () => {
     const { t } = useTranslation();

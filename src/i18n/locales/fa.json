@@ -5,7 +5,12 @@
         "error": "خطایی رخ داد",
         "retry": "تلاش مجدد",
         "offline": "آفلاین",
-        "lastUpdated": "آخرین به‌روزرسانی: {{time}}"
+        "lastUpdated": "آخرین به‌روزرسانی: {{time}}",
+        "justNow": "همین الان",
+        "minutesAgo": "{{count}} دقیقه پیش",
+        "hoursAgo": "{{count}} ساعت پیش",
+        "yesterday": "دیروز",
+        "daysAgo": "{{count}} روز پیش"
     },
     "tabs": {
         "home": "خانه",
@@ -16,20 +21,23 @@
     "home": {
         "title": "داشبورد اتصال",
         "subtitle": "وضعیت آنی اینترنت در سراسر ایران",
+        "statusLine": "وضعیت: {{status}} - به‌روزرسانی: {{time}}",
         "mapTitle": "وضعیت منطقه‌ای",
         "ispTitle": "اپراتورها و شبکه‌های موبایل",
         "pullToRefresh": "برای به‌روزرسانی بکشید",
-        "measurements": "اندازه‌گیری‌ها",
+        "measurements": "سنجش‌ها",
         "anomalies": "اختلالات",
         "lastUpdated": "به‌روزرسانی",
-        "loadingData": "در حال دریافت داده از OONI...",
-        "dataSource": "داده‌ها توسط OONI Explorer ارائه شده است"
+        "loadingData": "در حال دریافت داده...",
+        "dataSource": "داده از OONI، Cloudflare Radar و IODA"
     },
     "status": {
         "online": "آنلاین",
         "limited": "محدود",
         "offline": "قطع",
-        "unknown": "نامشخص"
+        "unknown": "نامشخص",
+        "normal": "عادی",
+        "disrupted": "مختل"
     },
     "timeline": {
         "title": "تاریخچه قطعی",
@@ -38,15 +46,33 @@
         "filterByISP": "فیلتر بر اساس اپراتور",
         "last24h": "۲۴ ساعت گذشته",
         "last7d": "۷ روز گذشته",
-        "last30d": "۳۰ روز گذشته"
+        "last30d": "۳۰ روز گذشته",
+        "avgConnectivity": "میانگین اتصال",
+        "lowestPoint": "پایین‌ترین",
+        "disruptions": "اختلالات",
+        "connectivityOverTime": "اتصال در طول زمان",
+        "loading": "در حال بارگذاری داده...",
+        "dataAttribution": "داده از IODA (Georgia Tech)، OONI و Cloudflare Radar. همه زمان‌ها به وقت محلی."
     },
     "alerts": {
         "title": "هشدارها",
         "noAlerts": "هیچ هشداری وجود ندارد",
+        "noAlertsDesc": "اتصال شبکه پایدار به نظر می‌رسد. در صورت شناسایی مشکل اطلاع‌رسانی می‌کنیم.",
+        "loading": "در حال بارگذاری هشدارها...",
+        "justNow": "همین الان",
+        "yesterday": "دیروز",
+        "unread": "خوانده نشده",
         "outageDetected": "قطعی شناسایی شد",
         "connectivityRestored": "اتصال برقرار شد",
         "partialOutage": "قطعی جزئی",
-        "markAllRead": "همه را خوانده‌شده علامت بزن"
+        "networkUpdate": "به‌روزرسانی شبکه",
+        "markAllRead": "همه را خوانده‌شده علامت بزن",
+        "majorOutage": "قطعی کامل",
+        "connectivityIssues": "مشکل اتصال",
+        "detectedVia": "شناسایی شده توسط {{source}}",
+        "severity": "شدت: {{level}}",
+        "affecting": "تأثیر بر {{region}}",
+        "dataSource": "داده از IODA (Georgia Tech)"
     },
     "settings": {
         "title": "تنظیمات",
@@ -59,9 +85,12 @@
         "privacy": "حریم خصوصی",
         "telemetry": "تله‌متری ناشناس",
         "telemetryDesc": "با اشتراک‌گذاری داده‌های ناشناس به بهبود پوشش کمک کنید",
+        "privacyPolicy": "حریم خصوصی شما اولویت ماست. ما هرگز موقعیت GPS، شناسه‌های شخصی یا داده‌هایی که می‌تواند شما را شناسایی کند جمع‌آوری نمی‌کنیم. فقط داده‌های ناشناس در سطح شهر برای مستندسازی قطعی‌های اینترنت به اشتراک گذاشته می‌شود.",
         "about": "درباره",
         "version": "نسخه",
-        "openSource": "متن‌باز"
+        "openSource": "متن‌باز",
+        "madeWith": "ساخته شده با ❤️ برای ایران",
+        "accessRights": "دسترسی حق است، نه امتیاز."
     },
     "regions": {
         "tehran": "تهران",
