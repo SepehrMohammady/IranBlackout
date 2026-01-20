@@ -43,6 +43,11 @@
   "alerts": {
     "title": "Alerts",
     "noAlerts": "No alerts at this time",
+    "noAlertsDesc": "Network connectivity appears stable. We'll notify you if any issues are detected.",
+    "loading": "Loading alerts...",
+    "justNow": "Just now",
+    "yesterday": "Yesterday",
+    "unread": "unread",
     "outageDetected": "Outage Detected",
     "connectivityRestored": "Connectivity Restored",
     "partialOutage": "Partial Outage",

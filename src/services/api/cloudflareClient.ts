@@ -41,26 +41,67 @@ class CloudflareRadarClient {
         return headers;
     }
 
-    // Public endpoint - no auth required
+    // Get traffic anomalies for a location (country)
     async getTrafficAnomalies(location: string = 'IR'): Promise<CloudflareRadarData[]> {
         try {
-            // Note: This is a simplified version. The actual Cloudflare Radar API
-            // may require different endpoints or authentication
+            // Cloudflare Radar API endpoint for traffic anomalies by location
+            // See: https://developers.cloudflare.com/api/resources/radar/subresources/traffic_anomalies/
             const response = await fetch(
-                `${this.baseUrl}/traffic/anomalies?location=${location}&dateRange=1d`,
+                `${this.baseUrl}/traffic_anomalies/locations?location=${location}&dateRange=1d&format=json`,
                 { headers: this.getHeaders() }
             );
 
             if (!response.ok) {
-                // Fall back to mock data if API is unavailable
-                console.warn('Cloudflare Radar API unavailable, using mock data');
-                return this.getMockData();
+                console.warn(`Cloudflare Radar API error: ${response.status} ${response.statusText}`);
+                // Try the general traffic anomalies endpoint as fallback
+                const fallbackResponse = await fetch(
+                    `${this.baseUrl}/traffic_anomalies?location=${location}&dateRange=1d&format=json`,
+                    { headers: this.getHeaders() }
+                );
+
+                if (!fallbackResponse.ok) {
+                    console.warn('Cloudflare Radar API unavailable, using mock data');
+                    return this.getMockData();
+                }
+
+                const fallbackData = await fallbackResponse.json();
+                return this.parseAnomalyResponse(fallbackData);
             }
 
             const data = await response.json();
-            return data.result || [];
+            return this.parseAnomalyResponse(data);
         } catch (error) {
             console.error('Cloudflare Radar API error:', error);
+            return this.getMockData();
+        }
+    }
+
+    // Parse the API response into our format
+    private parseAnomalyResponse(data: any): CloudflareRadarData[] {
+        try {
+            // Handle different response formats
+            const anomalies = data.result?.trafficAnomalies || data.result?.anomalies || data.result || [];
+
+            if (Array.isArray(anomalies) && anomalies.length > 0) {
+                return anomalies.map((a: any) => ({
+                    timestamp: a.startDate || a.timestamp || new Date().toISOString(),
+                    trafficChange: a.value || a.trafficChange || -100, // Default to -100 if anomaly detected
+                    countryCode: a.location || 'IR',
+                }));
+            }
+
+            // If no anomalies array but we got a response, assume severe outage
+            if (data.success && data.result) {
+                return [{
+                    timestamp: new Date().toISOString(),
+                    trafficChange: -100,
+                    countryCode: 'IR',
+                }];
+            }
+
+            return this.getMockData();
+        } catch (e) {
+            console.warn('Failed to parse Cloudflare response:', e);
             return this.getMockData();
         }
     }
@@ -108,5 +149,7 @@ class CloudflareRadarClient {
     }
 }
 
-export const cloudflareClient = new CloudflareRadarClient();
+// Initialize with API token for authenticated access
+const CF_API_TOKEN = 'Lq16sefxNe4JtpBVwylz1Oc2y-RvGTU9xSmJdLdb';
+export const cloudflareClient = new CloudflareRadarClient(CF_API_TOKEN);
 export default cloudflareClient;

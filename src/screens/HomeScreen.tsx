@@ -20,16 +20,27 @@ import { cache } from '../services/cache';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Iranian ISPs and their ASN mappings
+// Iranian ISPs and their ASN mappings (from Cloudflare Radar)
 const ISP_MAPPING: Record<string, { nameEn: string; nameFa: string; type: 'mobile' | 'fixed' | 'both' }> = {
+    // Mobile Operators
     'AS44244': { nameEn: 'Irancell', nameFa: 'ایرانسل', type: 'mobile' },
     'AS197207': { nameEn: 'MCI (Hamrah-e-Aval)', nameFa: 'همراه اول', type: 'mobile' },
     'AS57218': { nameEn: 'Rightel', nameFa: 'رایتل', type: 'mobile' },
+    'AS56548': { nameEn: 'Negintel', nameFa: 'نگین تل', type: 'mobile' },
+    // Fixed-line ISPs
     'AS58224': { nameEn: 'TCI (Mokhaberat)', nameFa: 'مخابرات', type: 'fixed' },
     'AS31549': { nameEn: 'Shatel', nameFa: 'شاتل', type: 'fixed' },
     'AS43754': { nameEn: 'Asiatech', nameFa: 'آسیاتک', type: 'fixed' },
     'AS16322': { nameEn: 'ParsOnline', nameFa: 'پارس آنلاین', type: 'fixed' },
     'AS25124': { nameEn: 'Afranet', nameFa: 'افرانت', type: 'fixed' },
+    'AS42337': { nameEn: 'Respina', nameFa: 'رسپینا', type: 'fixed' },
+    'AS12880': { nameEn: 'DCI (Iran Telecom)', nameFa: 'ارتباطات داده', type: 'fixed' },
+    'AS49100': { nameEn: 'Pishgaman', nameFa: 'پیشگامان', type: 'fixed' },
+    'AS205647': { nameEn: 'AFAGH', nameFa: 'آفاق', type: 'fixed' },
+    // Both (mixed providers)
+    'AS41881': { nameEn: 'Fanava', nameFa: 'فناوا', type: 'both' },
+    'AS48159': { nameEn: 'TIC', nameFa: 'زیرساخت', type: 'both' },
+    'AS49666': { nameEn: 'Iran Telecom', nameFa: 'مخابرات ایران', type: 'both' },
 };
 
 // Region mappings for Iran provinces
