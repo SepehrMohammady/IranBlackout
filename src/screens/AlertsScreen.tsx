@@ -17,12 +17,41 @@ import { Alert } from '../types';
 import { iodaClient } from '../services/api';
 
 const AlertsScreen: React.FC = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { colors } = useTheme();
     const [alerts, setAlerts] = useState<Alert[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const isFarsi = i18n.language === 'fa';
+
+    // Translate IODA alert titles to Farsi
+    const translateTitle = (title: string, type: Alert['type']): string => {
+        if (!isFarsi) return title;
+        const regionName = title.includes(':') ? title.split(':')[1]?.trim() : 'ایران';
+        const cleanRegion = regionName === 'Iran' ? 'ایران' : regionName;
+        switch (type) {
+            case 'outage': return `${t('alerts.majorOutage')}: ${cleanRegion}`;
+            case 'partial': return `${t('alerts.connectivityIssues')}: ${cleanRegion}`;
+            case 'restoration': return `${t('alerts.connectivityRestored')}: ${cleanRegion}`;
+            default: return `${t('alerts.networkUpdate')}: ${cleanRegion}`;
+        }
+    };
+
+    // Translate IODA alert messages to Farsi
+    const translateMessage = (message: string): string => {
+        if (!isFarsi) return message;
+        if (message.includes('Significant connectivity disruption')) {
+            return 'اختلال قابل توجه در اتصال شناسایی شد. منابع داده متعدد قطعی را تأیید می‌کنند.';
+        }
+        if (message.includes('Partial connectivity issues')) {
+            return 'مشکلات جزئی در اتصال شناسایی شد. برخی کاربران ممکن است سرعت پایین یا اتصال متناوب را تجربه کنند.';
+        }
+        if (message.includes('restored after disruption')) {
+            return 'اتصال اینترنت پس از اختلال برقرار شده است.';
+        }
+        return 'داده‌های نظارت شبکه نشان‌دهنده تغییرات اتصال در این منطقه است.';
+    };
 
     const fetchAlerts = useCallback(async () => {
         try {
@@ -130,7 +159,7 @@ const AlertsScreen: React.FC = () => {
                         style={styles.alertIcon}
                     />
                     <Text style={[typography.h4, { color: colors.text, flex: 1 }]} numberOfLines={1}>
-                        {item.title}
+                        {translateTitle(item.title, item.type)}
                     </Text>
                     {!item.read && (
                         <View style={[styles.unreadDot, { backgroundColor: colors.accent }]} />
@@ -141,7 +170,7 @@ const AlertsScreen: React.FC = () => {
                 </Text>
             </View>
             <Text style={[typography.body, styles.alertMessage, { color: colors.textSecondary }]} numberOfLines={3}>
-                {item.message}
+                {translateMessage(item.message)}
             </Text>
         </TouchableOpacity>
     );
